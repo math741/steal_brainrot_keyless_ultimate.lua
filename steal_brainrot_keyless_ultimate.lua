@@ -1,26 +1,4 @@
---[[
-    ███████╗██╗   ██╗██████╗ ██████╗ ███████╗███╗   ███╗███████╗    ██╗   ██╗ ██╗ ██████╗ 
-    ██╔════╝██║   ██║██╔══██╗██╔══██╗██╔════╝████╗ ████║██╔════╝    ██║   ██║███║██╔═████╗
-    ███████╗██║   ██║██████╔╝██████╔╝█████╗  ██╔████╔██║█████╗      ██║   ██║╚██║██║██╔██║
-    ╚════██║██║   ██║██╔═══╝ ██╔══██╗██╔══╝  ██║╚██╔╝██║██╔══╝      ╚██╗ ██╔╝ ██║████╔╝██║
-    ███████║╚██████╔╝██║     ██║  ██║███████╗██║ ╚═╝ ██║███████╗     ╚████╔╝  ██║╚██████╔╝
-    ╚══════╝ ╚═════╝ ╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝╚══════╝      ╚═══╝   ╚═╝ ╚═════╝ 
-                                                                                           
-    🌌 QUANTUM SUPREME UNIFIED v10 - ULTIMATE EDITION 🌌
-    Desenvolvido por: math741
-    Versão: 10.0.0 QUANTUM UNIFIED
-    Data: 2025-08-22 16:45:35 UTC
-    
-    RECURSOS SUPREMOS:
-    ⚡ Sistema Neural Quântico Unificado
-    🚀 Performance Dimensional Suprema
-    🎮 Interface Neural Ultra Adaptativa
-    🌌 Replicação Quântica Universal v2
-    🤖 IA Dimensional Aprimorada
-    🎯 ESP 10D Neural
-    🛡️ Proteção Absoluta Quântica Plus
-    💫 Super Otimização Suprema
-]]
+
 
 -- Proteção Inicial Suprema
 if not getgenv then
