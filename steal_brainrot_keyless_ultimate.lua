@@ -1,10 +1,31 @@
 
-
 -- Proteção Inicial Suprema
 if not getgenv then
     error("⚠️ Executor não compatível com tecnologia quântica suprema!")
 end
+-- Verificação de Nil
+local function SafeCall(func, ...)
+    if type(func) == "function" then
+        return func(...)
+    else
+        warn("⚠️ Tentativa de chamar função nil!")
+        return nil
+    end
+end
 
+-- Sistema de proteção contra nil
+local function InitializeProtection()
+    for k, v in pairs(getgenv()) do
+        if type(v) == "function" then
+            local old = v
+            getgenv()[k] = function(...)
+                return SafeCall(old, ...)
+            end
+        end
+    end
+end
+
+InitializeProtection()
 if getgenv().SupremeUnifiedActive then return end
 getgenv().SupremeUnifiedActive = true
 
