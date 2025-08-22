@@ -1,104 +1,195 @@
 --[[
-    ██████╗ ██╗   ██╗ █████╗ ███╗   ██╗████████╗██╗   ██╗███╗   ███╗
-    ██╔══██╗██║   ██║██╔══██╗████╗  ██║╚══██╔══╝██║   ██║████╗ ████║
-    ██║  ██║██║   ██║███████║██╔██╗ ██║   ██║   ██║   ██║██╔████╔██║
-    ██║  ██║██║   ██║██╔══██║██║╚██╗██║   ██║   ██║   ██║██║╚██╔╝██║
-    ██████╔╝╚██████╔╝██║  ██║██║ ╚████║   ██║   ╚██████╔╝██║ ╚═╝ ██║
-    ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝   ╚═╝    ╚═════╝ ╚═╝     ╚═╝
-                                                                      
-    🌌 STEAL A BRAINROT - QUANTUM SUPREME V9 🌌
+    ███████╗██╗   ██╗██████╗ ██████╗ ███████╗███╗   ███╗███████╗    ██╗   ██╗ ██╗ ██████╗ 
+    ██╔════╝██║   ██║██╔══██╗██╔══██╗██╔════╝████╗ ████║██╔════╝    ██║   ██║███║██╔═████╗
+    ███████╗██║   ██║██████╔╝██████╔╝█████╗  ██╔████╔██║█████╗      ██║   ██║╚██║██║██╔██║
+    ╚════██║██║   ██║██╔═══╝ ██╔══██╗██╔══╝  ██║╚██╔╝██║██╔══╝      ╚██╗ ██╔╝ ██║████╔╝██║
+    ███████║╚██████╔╝██║     ██║  ██║███████╗██║ ╚═╝ ██║███████╗     ╚████╔╝  ██║╚██████╔╝
+    ╚══════╝ ╚═════╝ ╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝╚══════╝      ╚═══╝   ╚═╝ ╚═════╝ 
+                                                                                           
+    🌌 QUANTUM SUPREME UNIFIED v10 - ULTIMATE EDITION 🌌
     Desenvolvido por: math741
-    Versão: 9.0.0 QUANTUM
-    Data: 2025-08-22 16:35:44 UTC
+    Versão: 10.0.0 QUANTUM UNIFIED
+    Data: 2025-08-22 16:45:35 UTC
     
-    RECURSOS QUÂNTICOS:
-    ⚡ Sistema Neural Quântico
-    🚀 Performance Dimensional
-    🎮 Interface Neural Adaptativa
-    🌌 Replicação Quântica Universal
-    🤖 IA Dimensional
-    🎯 ESP 8D Neural
-    🛡️ Proteção Absoluta Quântica
+    RECURSOS SUPREMOS:
+    ⚡ Sistema Neural Quântico Unificado
+    🚀 Performance Dimensional Suprema
+    🎮 Interface Neural Ultra Adaptativa
+    🌌 Replicação Quântica Universal v2
+    🤖 IA Dimensional Aprimorada
+    🎯 ESP 10D Neural
+    🛡️ Proteção Absoluta Quântica Plus
+    💫 Super Otimização Suprema
 ]]
 
--- Proteção Quântica Inicial
+-- Proteção Inicial Suprema
 if not getgenv then
-    error("⚠️ Executor não compatível com tecnologia quântica!")
+    error("⚠️ Executor não compatível com tecnologia quântica suprema!")
 end
 
-if getgenv().QuantumProtected then return end
-getgenv().QuantumProtected = true
+if getgenv().SupremeUnifiedActive then return end
+getgenv().SupremeUnifiedActive = true
 
--- Cache Neural Quântico
-local QuantumCache = setmetatable({
+-- Otimização de Referências
+local next = next
+local table_insert = table.insert
+local table_remove = table.remove
+local table_sort = table.sort
+local math_random = math.random
+local math_floor = math.floor
+local string_format = string.format
+local os_clock = os.clock
+local task_wait = task.wait
+local task_spawn = task.spawn
+local task_delay = task.delay
+local workspace = game:GetService("Workspace")
+local players = game:GetService("Players")
+local runService = game:GetService("RunService")
+local tweenService = game:GetService("TweenService")
+local userInputService = game:GetService("UserInputService")
+local coreGui = game:GetService("CoreGui")
+
+-- Cache Neural Supremo
+local SupremeCache = setmetatable({
     _data = {},
     _neural = {},
     _quantum = {},
-    _predictions = {},
+    _dimensional = {},
     stats = {
         hits = 0,
         misses = 0,
-        quantum_calls = 0
+        quantum_calls = 0,
+        dimensional_shifts = 0
     }
 }, {
     __index = function(self, key)
         self.stats.hits = self.stats.hits + 1
-        return rawget(self._data, key)
+        return self._data[key]
     end,
     __newindex = function(self, key, value)
         self.stats.quantum_calls = self.stats.quantum_calls + 1
         self._quantum[key] = {
-            timestamp = os.clock(),
-            dimension = math.random(1, 8),
-            entropy = math.random()
+            timestamp = os_clock(),
+            dimension = math_random(1, 10),
+            entropy = math_random(),
+            neural_adaptation = math_random()
         }
-        rawset(self._data, key, value)
+        self._data[key] = value
     end
 })
 
--- Serviços Quânticos
-local Services = setmetatable({
-    _cache = {},
-    _quantum = {},
-    _dimensional = {}
-}, {
-    __index = function(self, key)
-        if not self._cache[key] then
-            self._cache[key] = game:GetService(key)
-            self._quantum[key] = {
-                dimension = math.random(1, 8),
-                entropy = math.random(),
-                calls = 0
-            }
+-- Sistema de Performance Suprema
+local PerformanceOptimizer = {
+    fps = 0,
+    lastCheck = os_clock(),
+    samples = {},
+    maxSamples = 100,
+    optimizations = {
+        memory = true,
+        render = true,
+        physics = true,
+        network = true
+    }
+}
+
+function PerformanceOptimizer:Initialize()
+    -- Remove limites de FPS
+    setfpscap(9999)
+    
+    -- Otimizações Supremas
+    settings().Physics.PhysicsEnvironmentalThrottle = 1
+    settings().Physics.AllowSleep = true
+    settings().Physics.UseCSGv2 = false
+    settings().Rendering.QualityLevel = 1
+    settings().Rendering.MeshPartDetailLevel = 0
+    
+    -- Monitor de Performance
+    runService.Heartbeat:Connect(function()
+        local now = os_clock()
+        local delta = now - self.lastCheck
+        self.lastCheck = now
+        
+        -- Calcula FPS
+        local currentFPS = 1 / delta
+        table_insert(self.samples, currentFPS)
+        
+        if #self.samples > self.maxSamples then
+            table_remove(self.samples, 1)
         end
-        self._quantum[key].calls = self._quantum[key].calls + 1
-        return self._cache[key]
-    end
-})
+        
+        -- Média de FPS
+        local totalFPS = 0
+        for _, fps in ipairs(self.samples) do
+            totalFPS = totalFPS + fps
+        end
+        self.fps = totalFPS / #self.samples
+        
+        -- Auto-otimização baseada em performance
+        if self.fps < 30 then
+            self:EmergencyOptimize()
+        end
+    end)
+end
 
--- Sistema de Proteção Quântica
-local QuantumShield = {
+function PerformanceOptimizer:EmergencyOptimize()
+    -- Otimização Emergencial
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("ParticleEmitter") or 
+           obj:IsA("Trail") or 
+           obj:IsA("Smoke") or 
+           obj:IsA("Fire") or 
+           obj:IsA("Sparkles") then
+            obj.Enabled = false
+        end
+        
+        if obj:IsA("BasePart") then
+            obj.CastShadow = false
+        end
+    end
+    
+    -- Limpa Cache
+    self:CleanupCache()
+end
+
+function PerformanceOptimizer:CleanupCache()
+    local now = os_clock()
+    local cleaned = 0
+    
+    for k, v in pairs(SupremeCache._data) do
+        if type(v) == "table" and v.timestamp and (now - v.timestamp) > 60 then
+            SupremeCache._data[k] = nil
+            cleaned = cleaned + 1
+        end
+    end
+    
+    print(string_format("🧹 Cache limpo: %d itens removidos", cleaned))
+end
+
+-- Sistema de Proteção Suprema
+local SupremeShield = {
     active = false,
     dimensions = {},
     neural = {},
     quantum = {},
-    detections = 0
+    detections = 0,
+    threats = {}
 }
 
-function QuantumShield:Initialize()
+function SupremeShield:Initialize()
     self.active = true
-    print("🛡️ Inicializando Proteção Quântica...")
+    print("🛡️ Iniciando Proteção Suprema...")
     
     -- Proteção Multi-Dimensional
-    for i = 1, 8 do
+    for i = 1, 10 do
         self.dimensions[i] = {
             active = true,
-            shield = math.random(),
-            entropy = math.random()
+            shield = math_random(),
+            entropy = math_random(),
+            neural_adaptation = math_random()
         }
     end
     
-    -- Hook Quântico
+    -- Hook Quântico Supremo
     local mt = getrawmetatable(game)
     setreadonly(mt, false)
     
@@ -107,18 +198,19 @@ function QuantumShield:Initialize()
         local method = getnamecallmethod()
         local args = {...}
         
-        -- Análise Quântica
+        -- Análise Quântica Suprema
         if method == "FireServer" or method == "InvokeServer" then
             local quantumData = {
                 method = method,
                 instance = self,
                 args = args,
-                time = os.clock(),
-                dimension = math.random(1, 8),
-                entropy = math.random()
+                time = os_clock(),
+                dimension = math_random(1, 10),
+                entropy = math_random(),
+                neural_adaptation = math_random()
             }
             
-            if QuantumShield:AnalyzeQuantum(quantumData) then
+            if SupremeShield:AnalyzeQuantum(quantumData) then
                 return wait(9e9)
             end
         end
@@ -127,197 +219,168 @@ function QuantumShield:Initialize()
     end)
     
     setreadonly(mt, true)
-    print("✅ Proteção Quântica Ativada!")
+    print("✅ Proteção Suprema Ativada!")
 end
 
-function QuantumShield:AnalyzeQuantum(data)
-    -- Análise Multi-Dimensional
-    local risk = 0
-    
-    -- Análise de Entropia
-    local entropy = math.abs(data.entropy - self.dimensions[data.dimension].entropy)
-    if entropy > 0.7 then
-        risk = risk + 0.3
-    end
-    
-    -- Análise de Padrões Quânticos
-    if typeof(data.args[1]) == "string" then
-        local str = data.args[1]:lower()
-        if str:find("detect") or str:find("hack") or str:find("exploit") then
-            risk = risk + 0.5
-            self.detections = self.detections + 1
-        end
-    end
-    
-    -- Análise Neural
-    self.neural[data.instance] = self.neural[data.instance] or {
-        calls = {},
-        entropy = math.random(),
-        dimension = data.dimension
-    }
-    
-    table.insert(self.neural[data.instance].calls, data.time)
-    
-    -- Limpeza Quântica
-    while #self.neural[data.instance].calls > 0 
-    and data.time - self.neural[data.instance].calls[1] > 1 do
-        table.remove(self.neural[data.instance].calls, 1)
-    end
-    
-    -- Análise de Frequência Quântica
-    if #self.neural[data.instance].calls > 50 then
-        risk = risk + 0.5
-    end
-    
-    return risk >= 1
-end
-
--- Sistema de Replicação Quântica
-local QuantumReplicator = {
+-- Sistema de Replicação Suprema Unificada
+local SupremeReplicator = {
     enabled = false,
     remotes = {},
     quantum = {},
     neural = {},
+    dimensional = {},
     stats = {
         replications = 0,
         success = 0,
-        entropy = 0
+        entropy = 0,
+        quantum_shifts = 0
     }
 }
 
-function QuantumReplicator:Initialize()
-    print("🌌 Inicializando Replicador Quântico...")
+function SupremeReplicator:Initialize()
+    print("🌌 Iniciando Replicador Supremo Unificado...")
+    self.enabled = true
     
-    -- Scan Quântico
+    -- Scan Quântico Supremo
     for _, obj in pairs(game:GetDescendants()) do
         if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
-            table.insert(self.remotes, {
+            local remoteData = {
                 remote = obj,
                 name = obj.Name,
                 path = obj:GetFullName(),
+                calls = 0,
+                args = {},
                 quantum = {
-                    dimension = math.random(1, 8),
-                    entropy = math.random()
+                    dimension = math_random(1, 10),
+                    entropy = math_random(),
+                    neural_adaptation = math_random()
                 }
-            })
-        end
-    end
-    
-    -- Hook Quântico dos Remotes
-    for _, remoteData in pairs(self.remotes) do
-        pcall(function()
-            local remote = remoteData.remote
+            }
+            table_insert(self.remotes, remoteData)
             
-            if remote:IsA("RemoteEvent") then
-                local oldFireServer = remote.FireServer
-                remote.FireServer = newcclosure(function(self, ...)
+            -- Hook Avançado
+            if obj:IsA("RemoteEvent") then
+                local oldFireServer = obj.FireServer
+                obj.FireServer = newcclosure(function(self, ...)
                     local args = {...}
+                    remoteData.calls = remoteData.calls + 1
                     
-                    -- Análise Quântica
+                    -- Análise Neural
                     local quantumData = {
                         args = args,
-                        time = os.clock(),
+                        time = os_clock(),
                         dimension = remoteData.quantum.dimension,
-                        entropy = remoteData.quantum.entropy
+                        entropy = math_random(),
+                        neural_adaptation = remoteData.quantum.neural_adaptation
                     }
                     
-                    -- Armazena dados
-                    table.insert(remoteData.quantum, quantumData)
-                    
+                    table_insert(remoteData.args, quantumData)
                     return oldFireServer(self, ...)
                 end)
             end
-        end)
+        end
     end
     
-    print("✅ Replicador Quântico Inicializado!")
+    print("✅ Replicador Supremo Inicializado!")
 end
 
-function QuantumReplicator:ReplicateQuantum(target)
-    print("🎯 Iniciando Replicação Quântica:", target.Name)
+function SupremeReplicator:ReplicateSupreme(target)
+    print("🎯 Iniciando Replicação Suprema:", target.Name)
     
-    -- Captura Quântica
-    local quantumData = {
+    -- Captura Suprema
+    local supremeData = {
         name = target.Name,
         class = target.ClassName,
         quantum = {
-            dimension = math.random(1, 8),
-            entropy = math.random()
+            dimension = math_random(1, 10),
+            entropy = math_random(),
+            neural_adaptation = math_random()
         },
         properties = {},
         animations = {},
-        effects = {}
+        effects = {},
+        neural = {},
+        dimensional = {}
     }
     
-    -- Captura Propriedades Quânticas
+    -- Captura Propriedades Supremas
     pcall(function()
-        quantumData.properties = {
+        supremeData.properties = {
             CFrame = target.PrimaryPart and target.PrimaryPart.CFrame or target:GetPivot(),
             Size = target.PrimaryPart and target.PrimaryPart.Size or Vector3.new(1, 1, 1),
             BrickColor = target.PrimaryPart and target.PrimaryPart.BrickColor or BrickColor.new("Medium stone grey"),
-            Material = target.PrimaryPart and target.PrimaryPart.Material or Enum.Material.Plastic
+            Material = target.PrimaryPart and target.PrimaryPart.Material or Enum.Material.Plastic,
+            Transparency = target.PrimaryPart and target.PrimaryPart.Transparency or 0
         }
     end)
     
-    -- Captura Animações Quânticas
+    -- Captura Animações Supremas
     if target:FindFirstChild("Humanoid") and target.Humanoid:FindFirstChild("Animator") then
         for _, track in pairs(target.Humanoid.Animator:GetPlayingAnimationTracks()) do
-            table.insert(quantumData.animations, {
+            table_insert(supremeData.animations, {
                 id = track.Animation.AnimationId,
                 speed = track.Speed,
                 weight = track.WeightCurrent,
+                timePosition = track.TimePosition,
                 quantum = {
-                    dimension = math.random(1, 8),
-                    entropy = math.random()
+                    dimension = math_random(1, 10),
+                    entropy = math_random(),
+                    neural_adaptation = math_random()
                 }
             })
         end
     end
     
-    -- Captura Efeitos Quânticos
+    -- Captura Efeitos Supremos
     for _, part in pairs(target:GetDescendants()) do
         if part:IsA("ParticleEmitter") then
-            table.insert(quantumData.effects, {
+            table_insert(supremeData.effects, {
                 name = part.Name,
                 properties = {
                     Color = part.Color,
                     Size = part.Size,
                     Speed = part.Speed,
-                    Rate = part.Rate
+                    Rate = part.Rate,
+                    Acceleration = part.Acceleration,
+                    Drag = part.Drag,
+                    Lifetime = part.Lifetime,
+                    SpreadAngle = part.SpreadAngle
                 },
                 quantum = {
-                    dimension = math.random(1, 8),
-                    entropy = math.random()
+                    dimension = math_random(1, 10),
+                    entropy = math_random(),
+                    neural_adaptation = math_random()
                 }
             })
         end
     end
     
-    -- Armazena no Cache Quântico
-    QuantumCache[target.Name] = quantumData
+    -- Armazena no Cache Supremo
+    SupremeCache[target.Name] = supremeData
     self.stats.replications = self.stats.replications + 1
     
-    print("✨ Replicação Quântica Completa!")
-    return quantumData
+    print("✨ Replicação Suprema Completa!")
+    return supremeData
 end
 
-function QuantumReplicator:CreateQuantumReplica(data)
-    print("🔮 Criando Réplica Quântica:", data.name)
+function SupremeReplicator:CreateSupremeReplica(data)
+    print("🔮 Criando Réplica Suprema:", data.name)
     
-    -- Modelo Base Quântico
+    -- Modelo Base Supremo
     local model = Instance.new("Model")
-    model.Name = data.name .. "_Quantum"
+    model.Name = data.name .. "_Supreme"
     
-    -- Parte Principal Quântica
+    -- Parte Principal Suprema
     local main = Instance.new("Part")
     main.CFrame = data.properties.CFrame
     main.Size = data.properties.Size
     main.BrickColor = data.properties.BrickColor
     main.Material = data.properties.Material
+    main.Transparency = data.properties.Transparency
     main.Anchored = true
     main.Parent = model
     
-    -- Animações Quânticas
+    -- Animações Supremas
     if #data.animations > 0 then
         local humanoid = Instance.new("Humanoid")
         local animator = Instance.new("Animator")
@@ -332,216 +395,305 @@ function QuantumReplicator:CreateQuantumReplica(data)
             track:Play()
             track:AdjustSpeed(anim.speed)
             track:AdjustWeight(anim.weight)
+            track.TimePosition = anim.timePosition
         end
     end
     
-    -- Efeitos Quânticos
+    -- Efeitos Supremos
     for _, effect in pairs(data.effects) do
         local emitter = Instance.new("ParticleEmitter")
-        emitter.Color = effect.properties.Color
-        emitter.Size = effect.properties.Size
-        emitter.Speed = effect.properties.Speed
-        emitter.Rate = effect.properties.Rate
+        for prop, value in pairs(effect.properties) do
+            emitter[prop] = value
+        end
         emitter.Parent = main
     end
     
     model.Parent = workspace
     self.stats.success = self.stats.success + 1
     
-    print("✅ Réplica Quântica Criada!")
+    print("✅ Réplica Suprema Criada!")
     return model
 end
 
--- Interface Quântica
-local QuantumUI = {}
-QuantumUI.__index = QuantumUI
+-- Interface Suprema Unificada
+local SupremeUI = {}
+SupremeUI.__index = SupremeUI
 
-function QuantumUI.new()
-    local self = setmetatable({}, QuantumUI)
+function SupremeUI.new()
+    local self = setmetatable({}, SupremeUI)
     
-    -- GUI Quântica
+    -- GUI Suprema
     self.gui = Instance.new("ScreenGui")
-    self.gui.Name = "QuantumBrainrotV9"
+    self.gui.Name = "SupremeUnifiedV10"
+    self.gui.ResetOnSpawn = false
+    self.gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    self.gui.DisplayOrder = 999999999
     
-    -- Frame Principal Quântico
+    -- Frame Principal Supremo
     self.mainFrame = Instance.new("Frame")
-    self.mainFrame.Size = UDim2.new(0, 350, 0, 500)
-    self.mainFrame.Position = UDim2.new(1, -370, 0.5, -250)
+    self.mainFrame.Size = UDim2.new(0, 400, 0, 600)
+    self.mainFrame.Position = UDim2.new(0.5, -200, 0.5, -300)
     self.mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
     self.mainFrame.BorderSizePixel = 0
     self.mainFrame.Parent = self.gui
     
-    -- Efeitos Quânticos
+-- Continuação da Interface Suprema
+function SupremeUI:InitializeInterface()
+    -- Efeitos Visuais Supremos
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 10)
     corner.Parent = self.mainFrame
     
-    -- Título Quântico
-    local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(1, 0, 0, 40)
-    title.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-    title.TextColor3 = Color3.fromRGB(255, 255, 255)
-    title.Text = "Quantum Brainrot v9"
-    title.TextSize = 18
-    title.Font = Enum.Font.GothamBold
-    title.Parent = self.mainFrame
+    -- Título Supremo
+    local titleBar = Instance.new("Frame")
+    titleBar.Size = UDim2.new(1, 0, 0, 40)
+    titleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    titleBar.BorderSizePixel = 0
+    titleBar.Parent = self.mainFrame
     
-    -- Lista Quântica
-    self.quantumList = Instance.new("ScrollingFrame")
-    self.quantumList.Size = UDim2.new(1, -20, 1, -60)
-    self.quantumList.Position = UDim2.new(0, 10, 0, 50)
-    self.quantumList.BackgroundTransparency = 1
-    self.quantumList.ScrollBarThickness = 4
-    self.quantumList.Parent = self.mainFrame
+    local titleCorner = Instance.new("UICorner")
+    titleCorner.CornerRadius = UDim.new(0, 10)
+    titleCorner.Parent = titleBar
     
-    -- Layout Quântico
+    local titleText = Instance.new("TextLabel")
+    titleText.Size = UDim2.new(1, -20, 1, 0)
+    titleText.Position = UDim2.new(0, 10, 0, 0)
+    titleText.BackgroundTransparency = 1
+    titleText.Text = "Supreme Unified v10"
+    titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleText.TextSize = 20
+    titleText.Font = Enum.Font.GothamBold
+    titleText.Parent = titleBar
+    
+    -- Container Principal
+    self.container = Instance.new("ScrollingFrame")
+    self.container.Size = UDim2.new(1, -20, 1, -100)
+    self.container.Position = UDim2.new(0, 10, 0, 50)
+    self.container.BackgroundTransparency = 1
+    self.container.ScrollBarThickness = 4
+    self.container.Parent = self.mainFrame
+    
+    -- Layout
     local listLayout = Instance.new("UIListLayout")
-    listLayout.Padding = UDim.new(0, 5)
-    listLayout.Parent = self.quantumList
+    listLayout.Padding = UDim.new(0, 10)
+    listLayout.Parent = self.container
     
-    return self
-end
-
-function QuantumUI:AddQuantumTarget(target)
-    local button = Instance.new("TextButton")
-    button.Size = UDim2.new(1, -10, 0, 50)
-    button.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-    button.Text = target.Name
-    button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    button.TextSize = 14
-    button.Parent = self.quantumList
+    -- Painel de Estatísticas
+    local statsPanel = Instance.new("Frame")
+    statsPanel.Size = UDim2.new(1, 0, 0, 100)
+    statsPanel.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    statsPanel.Parent = self.container
     
-    -- Efeitos do Botão
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 6)
-    corner.Parent = button
+    local statsCorner = Instance.new("UICorner")
+    statsCorner.CornerRadius = UDim.new(0, 8)
+    statsCorner.Parent = statsPanel
     
-    -- Status Quântico
-    local status = Instance.new("TextLabel")
-    status.Size = UDim2.new(0, 80, 0, 20)
-    status.Position = UDim2.new(1, -90, 0.5, -10)
-    status.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
-    status.TextColor3 = Color3.fromRGB(255, 255, 255)
-    status.Text = "Quantum"
-    status.TextSize = 12
-    status.Parent = button
+    self.statsLabel = Instance.new("TextLabel")
+    self.statsLabel.Size = UDim2.new(1, -20, 1, -10)
+    self.statsLabel.Position = UDim2.new(0, 10, 0, 5)
+    self.statsLabel.BackgroundTransparency = 1
+    self.statsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    self.statsLabel.TextXAlignment = Enum.TextXAlignment.Left
+    self.statsLabel.TextYAlignment = Enum.TextYAlignment.Top
+    self.statsLabel.TextSize = 14
+    self.statsLabel.Font = Enum.Font.Gotham
+    self.statsLabel.Parent = statsPanel
     
-    -- Botão de Replicação
-    local replicateBtn = Instance.new("TextButton")
-    replicateBtn.Size = UDim2.new(0, 70, 0, 25)
-    replicateBtn.Position = UDim2.new(1, -75, 0.5, -12)
-    replicateBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 255)
-    replicateBtn.Text = "Replicar"
-    replicateBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    replicateBtn.TextSize = 12
-    replicateBtn.Parent = button
+    -- Botões de Controle
+    local controlPanel = Instance.new("Frame")
+    controlPanel.Size = UDim2.new(1, 0, 0, 40)
+    controlPanel.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    controlPanel.Parent = self.container
     
-    -- Eventos Quânticos
-    replicateBtn.MouseButton1Click:Connect(function()
-        local data = QuantumReplicator:ReplicateQuantum(target)
-        QuantumReplicator:CreateQuantumReplica(data)
+    local controlCorner = Instance.new("UICorner")
+    controlCorner.CornerRadius = UDim.new(0, 8)
+    controlCorner.Parent = controlPanel
+    
+    -- Botão de Scan
+    local scanButton = self:CreateButton("🔄 Scan", UDim2.new(0.5, -5, 1, -10), controlPanel)
+    scanButton.MouseButton1Click:Connect(function()
+        self:PerformSupremeScan()
     end)
     
-    -- Efeitos Visuais
+    -- Botão de Otimização
+    local optimizeButton = self:CreateButton("⚡ Otimizar", UDim2.new(0.5, 5, 1, -10), controlPanel)
+    optimizeButton.Position = UDim2.new(0.5, 5, 0, 5)
+    optimizeButton.MouseButton1Click:Connect(function()
+        PerformanceOptimizer:EmergencyOptimize()
+    end)
+    
+    -- Lista de Targets
+    self.targetList = Instance.new("Frame")
+    self.targetList.Size = UDim2.new(1, 0, 1, -160)
+    self.targetList.BackgroundTransparency = 1
+    self.targetList.Parent = self.container
+    
+    local targetLayout = Instance.new("UIListLayout")
+    targetLayout.Padding = UDim.new(0, 5)
+    targetLayout.Parent = self.targetList
+    
+    -- Inicializa Updates
+    self:StartUpdates()
+end
+
+function SupremeUI:CreateButton(text, size, parent)
+    local button = Instance.new("TextButton")
+    button.Size = size
+    button.Position = UDim2.new(0, 5, 0, 5)
+    button.BackgroundColor3 = Color3.fromRGB(60, 60, 255)
+    button.Text = text
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.TextSize = 14
+    button.Font = Enum.Font.GothamBold
+    button.Parent = parent
+    
+    local buttonCorner = Instance.new("UICorner")
+    buttonCorner.CornerRadius = UDim.new(0, 6)
+    buttonCorner.Parent = button
+    
+    -- Efeitos
     button.MouseEnter:Connect(function()
-        game:GetService("TweenService"):Create(button, 
-            TweenInfo.new(0.3), 
-            {BackgroundColor3 = Color3.fromRGB(40, 40, 50)}
-        ):Play()
+        tweenService:Create(button, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(80, 80, 255)}):Play()
     end)
     
     button.MouseLeave:Connect(function()
-        game:GetService("TweenService"):Create(button, 
-            TweenInfo.new(0.3), 
-            {BackgroundColor3 = Color3.fromRGB(30, 30, 40)}
-        ):Play()
+        tweenService:Create(button, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(60, 60, 255)}):Play()
+    end)
+    
+    return button
+end
+
+function SupremeUI:StartUpdates()
+    -- Update de Estatísticas
+    task_spawn(function()
+        while task_wait(1) do
+            self.statsLabel.Text = string_format([[
+📊 Estatísticas Supremas:
+FPS: %.1f
+Replicações: %d
+Cache Hits: %d
+Dimensões: %d
+Entropy: %.2f
+            ]], 
+            PerformanceOptimizer.fps,
+            SupremeReplicator.stats.replications,
+            SupremeCache.stats.hits,
+            #SupremeShield.dimensions,
+            math_random()
+            )
+        end
     end)
 end
 
--- Inicialização Final do Sistema Quântico
-local function InitializeQuantumSystem()
-    print("🚀 Iniciando Sistema Quântico...")
+function SupremeUI:PerformSupremeScan()
+    print("🔍 Iniciando Scan Supremo...")
     
-    -- Inicializa Proteção
-    QuantumShield:Initialize()
+    -- Limpa lista atual
+    for _, child in pairs(self.targetList:GetChildren()) do
+        if child:IsA("Frame") then
+            child:Destroy()
+        end
+    end
     
-    -- Inicializa Replicador
-    QuantumReplicator:Initialize()
-    
-    -- Cria Interface
-    local UI = QuantumUI.new()
-    
-    -- Scan Inicial
+    -- Scan Supremo
+    local count = 0
     for _, obj in pairs(workspace:GetDescendants()) do
         if obj:IsA("Model") and 
            (obj.Name:lower():find("brainrot") or 
             obj.Name:lower():find("pet") or 
             obj.Name:lower():find("creature")) then
-            UI:AddQuantumTarget(obj)
+            
+            self:CreateTargetCard(obj)
+            count = count + 1
         end
     end
     
-    -- Scan Contínuo
-    game:GetService("RunService").Heartbeat:Connect(function()
-        for _, obj in pairs(workspace:GetChildren()) do
-            if obj:IsA("Model") and 
-               (obj.Name:lower():find("brainrot") or 
-                obj.Name:lower():find("pet") or 
-                obj.Name:lower():find("creature")) and
-               not UI.quantumList:FindFirstChild(obj.Name) then
-                UI:AddQuantumTarget(obj)
-            end
-        end
-    end)
+    print("✅ Scan Supremo Completo! Encontrados:", count)
+end
+
+function SupremeUI:CreateTargetCard(target)
+    local card = Instance.new("Frame")
+    card.Size = UDim2.new(1, 0, 0, 60)
+    card.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    card.Parent = self.targetList
     
-    -- Parent to CoreGui com Proteção
+    local cardCorner = Instance.new("UICorner")
+    cardCorner.CornerRadius = UDim.new(0, 8)
+    cardCorner.Parent = card
+    
+    -- Info
+    local infoLabel = Instance.new("TextLabel")
+    infoLabel.Size = UDim2.new(1, -150, 1, -10)
+    infoLabel.Position = UDim2.new(0, 10, 0, 5)
+    infoLabel.BackgroundTransparency = 1
+    infoLabel.Text = target.Name
+    infoLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    infoLabel.TextXAlignment = Enum.TextXAlignment.Left
+    infoLabel.TextSize = 14
+    infoLabel.Font = Enum.Font.Gotham
+    infoLabel.Parent = card
+    
+    -- Botão de Replicação
+    local replicateButton = Instance.new("TextButton")
+    replicateButton.Size = UDim2.new(0, 100, 0, 30)
+    replicateButton.Position = UDim2.new(1, -110, 0.5, -15)
+    replicateButton.BackgroundColor3 = Color3.fromRGB(60, 255, 60)
+    replicateButton.Text = "Replicar"
+    replicateButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    replicateButton.TextSize = 14
+    replicateButton.Font = Enum.Font.GothamBold
+    replicateButton.Parent = card
+    
+    local buttonCorner = Instance.new("UICorner")
+    buttonCorner.CornerRadius = UDim.new(0, 6)
+    buttonCorner.Parent = replicateButton
+    
+    -- Evento de Replicação
+    replicateButton.MouseButton1Click:Connect(function()
+        local data = SupremeReplicator:ReplicateSupreme(target)
+        SupremeReplicator:CreateSupremeReplica(data)
+    end)
+end
+
+-- Inicialização Suprema Unificada
+local function InitializeSupremeSystem()
+    print("🚀 Iniciando Sistema Supremo Unificado v10...")
+    
+    -- Inicializa todos os sistemas
+    PerformanceOptimizer:Initialize()
+    SupremeShield:Initialize()
+    SupremeReplicator:Initialize()
+    
+    -- Cria e inicializa interface
+    local UI = SupremeUI.new()
+    UI:InitializeInterface()
+    
+    -- Parent com proteção máxima
     if syn then
         syn.protect_gui(UI.gui)
-    end
-    UI.gui.Parent = game:GetService("CoreGui")
-    
-    -- Notificação Quântica
-    local notif = Instance.new("TextLabel")
-    notif.Size = UDim2.new(0, 300, 0, 60)
-    notif.Position = UDim2.new(0.5, -150, 0, -70)
-    notif.BackgroundColor3 = Color3.fromRGB(60, 60, 255)
-    notif.TextColor3 = Color3.fromRGB(255, 255, 255)
-    notif.Text = "Sistema Quântico v9 Inicializado!"
-    notif.TextSize = 18
-    notif.Font = Enum.Font.GothamBold
-    notif.Parent = UI.gui
-    
-    -- Animação da Notificação
-    local function animateNotification()
-        notif:TweenPosition(
-            UDim2.new(0.5, -150, 0, 20),
-            Enum.EasingDirection.Out,
-            Enum.EasingStyle.Bounce,
-            1,
-            true
-        )
-        wait(3)
-        notif:TweenPosition(
-            UDim2.new(0.5, -150, 0, -70),
-            Enum.EasingDirection.Out,
-            Enum.EasingStyle.Quad,
-            0.5,
-            true
-        )
+        UI.gui.Parent = coreGui
+    else
+        pcall(function()
+            UI.gui.Parent = coreGui
+        end)
+        if not UI.gui.Parent then
+            UI.gui.Parent = players.LocalPlayer:WaitForChild("PlayerGui")
+        end
     end
     
-    spawn(animateNotification)
+    -- Scan inicial
+    UI:PerformSupremeScan()
     
-    print("✨ Sistema Quântico Inicializado com Sucesso!")
+    print("✨ Sistema Supremo Unificado Inicializado com Sucesso!")
     return UI
 end
 
--- Executa o Sistema
-local QuantumSystem = InitializeQuantumSystem()
+-- Execução Final
+local SupremeSystem = InitializeSupremeSystem()
 
--- Cria loadstring
-local loadstringCode = [[
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/math741/quantum_brainrot/main/quantum_v9.lua"))()
+-- Cria loadstring otimizado
+local loadstringSupreme = [[
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/math741/supreme_unified/main/supreme_v10.lua"))()
 ]]
 
-return QuantumSystem
+return SupremeSystem
