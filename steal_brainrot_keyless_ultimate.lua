@@ -5,11 +5,10 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 local Workspace = game:GetService("Workspace")
-local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
--- Lista expandida de Brainrots
-local brainrotList = {
+-- Listas de opções
+local listaBrainrots = {
     "Tung Tung Tung Sahur",
     "La Vacca Saturno Saturnita",
     "Los Tralalleritos",
@@ -21,8 +20,7 @@ local brainrotList = {
     -- Adicione mais nomes encontrados pelo Dex Explorer
 }
 
--- Lista de mutações conhecidas
-local mutationList = {
+local listaMutacoes = {
     "Bloodrot",
     "Galactic",
     "Nyan Cat",
@@ -34,8 +32,7 @@ local mutationList = {
     -- Adicione mais mutações encontradas pelo Dex Explorer
 }
 
--- Lista de eventos conhecidos
-local eventList = {
+local listaEventos = {
     "Bloodmoon",
     "Lava",
     "Rainbow",
@@ -47,39 +44,36 @@ local eventList = {
     -- Adicione mais eventos encontrados pelo Dex Explorer
 }
 
--- Lista para armazenar logs
-local logs = { Remotes = {}, Brainrots = {}, Mutations = {}, Automation = {}, Errors = {} }
+-- Estrutura para logs
+local logs = { Remotes = {}, Brainrots = {}, Mutacoes = {}, Automacao = {}, Erros = {} }
 
--- Função para adicionar logs
-local function addLog(category, message)
-    table.insert(logs[category], os.date("%H:%M:%S") .. " - " .. message)
-    if #logs[category] > 50 then -- Limita logs por categoria
-        table.remove(logs[category], 1)
+local function adicionarLog(categoria, mensagem)
+    table.insert(logs[categoria], os.date("%H:%M:%S") .. " - " .. mensagem)
+    if #logs[categoria] > 50 then
+        table.remove(logs[categoria], 1)
     end
 end
 
--- Função para exibir notificações
-local function notify(title, message, duration)
+local function notificar(titulo, mensagem, duracao)
     pcall(function()
         StarterGui:SetCore("SendNotification", {
-            Title = title,
-            Text = message,
-            Duration = duration or 5
+            Title = titulo,
+            Text = mensagem,
+            Duration = duracao or 5
         })
-        addLog("Automation", "Notificação: " .. message)
+        adicionarLog("Automacao", "Notificação: " .. mensagem)
     end)
 end
 
--- Função para listar todos os Remote Events e Remote Functions
-local function listRemotes()
+local function listarRemotes()
     local remotes = {}
-    local services = {ReplicatedStorage, game:GetService("ServerScriptService"), game:GetService("ServerStorage")}
-    for _, service in pairs(services) do
+    local servicos = {ReplicatedStorage, game:GetService("ServerScriptService"), game:GetService("ServerStorage")}
+    for _, servico in pairs(servicos) do
         pcall(function()
-            for _, obj in pairs(service:GetDescendants()) do
+            for _, obj in pairs(servico:GetDescendants()) do
                 if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
-                    table.insert(remotes, obj.Name .. " (" .. obj.ClassName .. ") em " .. service.Name)
-                    addLog("Remotes", "Encontrado: " .. obj.Name .. " (" .. obj.ClassName .. ") em " .. service.Name)
+                    table.insert(remotes, obj.Name .. " (" .. obj.ClassName .. ") em " .. servico.Name)
+                    adicionarLog("Remotes", "Encontrado: " .. obj.Name .. " (" .. obj.ClassName .. ") em " .. servico.Name)
                 end
             end
         end)
@@ -87,76 +81,72 @@ local function listRemotes()
     return remotes
 end
 
--- Função para explorar o Workspace (Brainrots, Conveyor, Mutações)
-local function exploreWorkspace()
-    local objects = {}
+local function explorarWorkspace()
+    local objetos = {}
     for _, obj in pairs(Workspace:GetDescendants()) do
         if obj:IsA("Model") and obj.Name:lower():find("brainrot") then
-            table.insert(objects, obj.Name .. " (Model) em " .. obj:GetFullName())
-            addLog("Brainrots", "Encontrado: " .. obj.Name .. " em " .. obj:GetFullName())
+            table.insert(objetos, obj.Name .. " (Model) em " .. obj:GetFullName())
+            adicionarLog("Brainrots", "Encontrado: " .. obj.Name .. " em " .. obj:GetFullName())
         elseif obj:IsA("Part") and obj.Name:lower():find("conveyor") then
-            table.insert(objects, obj.Name .. " (Conveyor Belt) em " .. obj:GetFullName())
-            addLog("Brainrots", "Conveyor encontrado: " .. obj.Name .. " em " .. obj:GetFullName())
+            table.insert(objetos, obj.Name .. " (Conveyor) em " .. obj:GetFullName())
+            adicionarLog("Brainrots", "Conveyor encontrado: " .. obj.Name .. " em " .. obj:GetFullName())
         end
     end
-    return objects
+    return objetos
 end
 
--- Função para encontrar um Remote específico
-local function findRemote(name)
-    local services = {ReplicatedStorage, game:GetService("ServerScriptService"), game:GetService("ServerStorage")}
-    for _, service in pairs(services) do
-        local success, result = pcall(function()
-            for _, obj in pairs(service:GetDescendants()) do
-                if (obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction")) and obj.Name:lower():find(name:lower()) then
+local function encontrarRemote(nome)
+    local servicos = {ReplicatedStorage, game:GetService("ServerScriptService"), game:GetService("ServerStorage")}
+    for _, servico in pairs(servicos) do
+        local sucesso, resultado = pcall(function()
+            for _, obj in pairs(servico:GetDescendants()) do
+                if (obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction")) and obj.Name:lower():find(nome:lower()) then
                     return obj
                 end
             end
         end)
-        if success and result then
-            return result
+        if sucesso and resultado then
+            return resultado
         end
     end
     return nil
 end
 
--- Função para disparar um Remote Event/Function com bypass
-local function triggerRemote(remoteName, ...)
-    local remote = findRemote(remoteName)
+local function acionarRemote(nomeRemote, ...)
+    local remote = encontrarRemote(nomeRemote)
     if remote then
         pcall(function()
-            wait(math.random(0.1, 0.5)) -- Delay aleatório para bypass
+            wait(math.random(0.1, 0.5))
             if remote:IsA("RemoteEvent") then
                 remote:FireServer(...)
-                notify("Sucesso", "Disparado " .. remoteName, 3)
-                addLog("Automation", "Disparado Remote: " .. remoteName)
+                notificar("Sucesso", "Disparado " .. nomeRemote, 3)
+                adicionarLog("Automacao", "Disparado Remote: " .. nomeRemote)
             elseif remote:IsA("RemoteFunction") then
                 remote:InvokeServer(...)
-                notify("Sucesso", "Invocado " .. remoteName, 3)
-                addLog("Automation", "Invocado Remote: " .. remoteName)
+                notificar("Sucesso", "Invocado " .. nomeRemote, 3)
+                adicionarLog("Automacao", "Invocado Remote: " .. nomeRemote)
             end
         end)
     else
-        notify("Erro", "Remote " .. remoteName .. " não encontrado! Use Dex Explorer.", 5)
-        addLog("Errors", "Remote " .. remoteName .. " não encontrado")
+        notificar("Erro", "Remote " .. nomeRemote .. " não encontrado! Use Dex Explorer.", 5)
+        adicionarLog("Erros", "Remote " .. nomeRemote .. " não encontrado")
     end
 end
 
--- Função para spawnar um Brainrot com mutação específica
-local function spawnBrainrot(brainrotName, mutation)
-    local spawnRemote = findRemote("spawn") or findRemote("brainrot") or findRemote("mutation")
+local function spawnarBrainrot(nomeBrainrot, mutacao)
+    local spawnRemote = encontrarRemote("spawn") or encontrarRemote("brainrot") or encontrarRemote("mutation")
     if spawnRemote then
         pcall(function()
-            triggerRemote(spawnRemote.Name, brainrotName, mutation)
-            addLog("Brainrots", "Tentou spawnar: " .. brainrotName .. " com mutação: " .. mutation)
+            acionarRemote(spawnRemote.Name, nomeBrainrot, mutacao)
+            adicionarLog("Brainrots", "Tentou spawnar: " .. nomeBrainrot .. " com mutação: " .. mutacao)
         end)
         return
     end
 
-    -- Alternativa: Clonar um Brainrot existente no Workspace
+    -- Alternativa: clonar Brainrot do workspace
     local brainrot = nil
     for _, obj in pairs(Workspace:GetDescendants()) do
-        if obj:IsA("Model") and obj.Name:lower():find(brainrotName:lower()) then
+        if obj:IsA("Model") and obj.Name:lower():find(nomeBrainrot:lower()) then
             brainrot = obj
             break
         end
@@ -166,27 +156,27 @@ local function spawnBrainrot(brainrotName, mutation)
             local clone = brainrot:Clone()
             clone.Parent = Workspace
             clone:SetPrimaryPartCFrame(LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, 5, 0))
-            local mutationRemote = findRemote(mutation:lower()) or findRemote("mutation")
+            local mutationRemote = encontrarRemote(mutacao:lower()) or encontrarRemote("mutation")
             if mutationRemote then
-                triggerRemote(mutationRemote.Name, clone, mutation)
+                acionarRemote(mutationRemote.Name, clone, mutacao)
             end
-            notify("Sucesso", "Clone de " .. brainrotName .. " criado com mutação: " .. mutation, 5)
-            addLog("Brainrots", "Clone criado: " .. brainrotName .. " com mutação: " .. mutation)
+            notificar("Sucesso", "Clone de " .. nomeBrainrot .. " criado com mutação: " .. mutacao, 5)
+            adicionarLog("Brainrots", "Clone criado: " .. nomeBrainrot .. " com mutação: " .. mutacao)
         end)
     else
-        notify("Erro", "Brainrot " .. brainrotName .. " não encontrado! Use Dex Explorer.", 5)
-        addLog("Errors", "Brainrot " .. brainrotName .. " não encontrado")
+        notificar("Erro", "Brainrot " .. nomeBrainrot .. " não encontrado! Use Dex Explorer.", 5)
+        adicionarLog("Erros", "Brainrot " .. nomeBrainrot .. " não encontrado")
     end
 end
 
--- Função para ESP (highlight visual para Brainrots)
-local espEnabled = false
-local function toggleESP(state)
-    espEnabled = state
-    if state then
-        addLog("Automation", "ESP ativado")
+-- ESP (highlight visual para Brainrots)
+local espAtivado = false
+local function ativarESP(estado)
+    espAtivado = estado
+    if estado then
+        adicionarLog("Automacao", "ESP ativado")
         spawn(function()
-            while espEnabled do
+            while espAtivado do
                 pcall(function()
                     for _, obj in pairs(Workspace:GetDescendants()) do
                         if obj:IsA("Model") and obj.Name:lower():find("brainrot") then
@@ -195,7 +185,7 @@ local function toggleESP(state)
                             highlight.FillColor = Color3.fromRGB(255, 0, 0)
                             highlight.OutlineColor = Color3.fromRGB(255, 255, 0)
                             highlight.Parent = obj
-                            addLog("Brainrots", "ESP aplicado: " .. obj.Name)
+                            adicionarLog("Brainrots", "ESP aplicado: " .. obj.Name)
                         end
                     end
                 end)
@@ -208,45 +198,45 @@ local function toggleESP(state)
                     end
                 end
             end
-            addLog("Automation", "ESP desativado")
+            adicionarLog("Automacao", "ESP desativado")
         end)
     end
 end
 
--- Função para Auto Collect (coletar moeda automaticamente)
-local autoCollectEnabled = false
-local function toggleAutoCollect(state)
-    autoCollectEnabled = state
-    if state then
-        addLog("Automation", "Auto Collect ativado")
+-- Auto Collect (coletar moeda automaticamente)
+local autoCollectAtivado = false
+local function ativarAutoCollect(estado)
+    autoCollectAtivado = estado
+    if estado then
+        adicionarLog("Automacao", "Auto Collect ativado")
         spawn(function()
-            while autoCollectEnabled do
+            while autoCollectAtivado do
                 pcall(function()
                     for _, obj in pairs(Workspace:GetDescendants()) do
                         if obj:IsA("Part") and obj.Name:lower():find("cash") then
                             LocalPlayer.Character.HumanoidRootPart.CFrame = obj.CFrame
-                            wait(math.random(0.2, 0.5)) -- Delay para bypass
+                            wait(math.random(0.2, 0.5))
                             firetouchinterest(LocalPlayer.Character.HumanoidRootPart, obj, 1)
                             firetouchinterest(LocalPlayer.Character.HumanoidRootPart, obj, 0)
-                            addLog("Automation", "Coletado: " .. obj.Name)
+                            adicionarLog("Automacao", "Coletado: " .. obj.Name)
                         end
                     end
                 end)
                 wait(0.5)
             end
-            addLog("Automation", "Auto Collect desativado")
+            adicionarLog("Automacao", "Auto Collect desativado")
         end)
     end
 end
 
--- Função para Auto Steal (roubar Brainrots de outros jogadores)
-local autoStealEnabled = false
-local function toggleAutoSteal(state)
-    autoStealEnabled = state
-    if state then
-        addLog("Automation", "Auto Steal ativado")
+-- Auto Steal (roubar Brainrots de outros jogadores)
+local autoStealAtivado = false
+local function ativarAutoSteal(estado)
+    autoStealAtivado = estado
+    if estado then
+        adicionarLog("Automacao", "Auto Steal ativado")
         spawn(function()
-            while autoStealEnabled do
+            while autoStealAtivado do
                 pcall(function()
                     for _, player in pairs(Players:GetPlayers()) do
                         if player ~= LocalPlayer then
@@ -255,12 +245,12 @@ local function toggleAutoSteal(state)
                                 for _, brainrot in pairs(base:GetDescendants()) do
                                     if brainrot:IsA("Model") and brainrot.Name:lower():find("brainrot") then
                                         LocalPlayer.Character.HumanoidRootPart.CFrame = brainrot:GetPrimaryPartCFrame()
-                                        wait(math.random(0.2, 0.5)) -- Delay para bypass
-                                        local stealRemote = findRemote("steal")
+                                        wait(math.random(0.2, 0.5))
+                                        local stealRemote = encontrarRemote("steal")
                                         if stealRemote then
-                                            triggerRemote(stealRemote.Name, brainrot)
+                                            acionarRemote(stealRemote.Name, brainrot)
                                         end
-                                        addLog("Automation", "Tentou roubar: " .. brainrot.Name .. " de " .. player.Name)
+                                        adicionarLog("Automacao", "Tentou roubar: " .. brainrot.Name .. " de " .. player.Name)
                                     end
                                 end
                             end
@@ -269,227 +259,236 @@ local function toggleAutoSteal(state)
                 end)
                 wait(1)
             end
-            addLog("Automation", "Auto Steal desativado")
+            adicionarLog("Automacao", "Auto Steal desativado")
         end)
     end
 end
 
--- Função para monitorar eventos
-local function monitorEvents()
+-- Monitorar eventos
+local function monitorarEventos()
     Workspace.ChildAdded:Connect(function(child)
         if child.Name:lower():find("bloodmoon") or child.Name:lower():find("event") then
-            notify("Evento Detectado", "Evento " .. child.Name .. " iniciado!", 5)
-            addLog("Automation", "Evento detectado: " .. child.Name)
-            triggerRemote("bloodmoon")
+            notificar("Evento Detectado", "Evento " .. child.Name .. " iniciado!", 5)
+            adicionarLog("Automacao", "Evento detectado: " .. child.Name)
+            acionarRemote("bloodmoon")
         end
     end)
 end
 
--- Interface Gráfica com Rayfield
-local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Rayfield/main/source'))()
-local Window = Rayfield:CreateWindow({
+-- Interface gráfica Rayfield
+local Rayfield = nil
+local sucesso, resultado = pcall(function()
+    return loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Rayfield/main/source'))()
+end)
+if sucesso and resultado then
+    Rayfield = resultado
+else
+    notificar("Erro", "Falha ao carregar Rayfield! Verifique sua conexão ou o link.", 10)
+    return
+end
+
+local Janela = Rayfield:CreateWindow({
     Name = "Steal a Brainrot - Keyless Ultimate",
     LoadingTitle = "Carregando Script",
-    LoadingSubtitle = "by xAI",
+    LoadingSubtitle = "por xAI",
 })
 
-local MainTab = Window:CreateTab("Main", nil)
-local AutomationTab = Window:CreateTab("Automation", nil)
-local LogTab = Window:CreateTab("Logs", nil)
+local AbaPrincipal = Janela:CreateTab("Principal", nil)
+local AbaAutomacao = Janela:CreateTab("Automação", nil)
+local AbaLogs = Janela:CreateTab("Logs", nil)
 
 -- Seção de logs
-local LogRemotesLabel = LogTab:CreateLabel("Remotes (atualiza automaticamente)")
-local LogBrainrotsLabel = LogTab:CreateLabel("Brainrots (atualiza automaticamente)")
-local LogMutationsLabel = LogTab:CreateLabel("Mutações (atualiza automaticamente)")
-local LogAutomationLabel = LogTab:CreateLabel("Automação (atualiza automaticamente)")
-local LogErrorsLabel = LogTab:CreateLabel("Erros (atualiza automaticamente)")
+local LabelRemotes = AbaLogs:CreateLabel("Remotes (atualiza automaticamente)")
+local LabelBrainrots = AbaLogs:CreateLabel("Brainrots (atualiza automaticamente)")
+local LabelMutacoes = AbaLogs:CreateLabel("Mutações (atualiza automaticamente)")
+local LabelAutomacao = AbaLogs:CreateLabel("Automação (atualiza automaticamente)")
+local LabelErros = AbaLogs:CreateLabel("Erros (atualiza automaticamente)")
 
--- Função para atualizar os logs na interface
-local function updateLogs()
-    LogRemotesLabel:Set(table.concat(logs.Remotes, "\n"))
-    LogBrainrotsLabel:Set(table.concat(logs.Brainrots, "\n"))
-    LogMutationsLabel:Set(table.concat(logs.Mutations, "\n"))
-    LogAutomationLabel:Set(table.concat(logs.Automation, "\n"))
-    LogErrorsLabel:Set(table.concat(logs.Errors, "\n"))
+local function atualizarLogs()
+    LabelRemotes:Set(table.concat(logs.Remotes, "\n"))
+    LabelBrainrots:Set(table.concat(logs.Brainrots, "\n"))
+    LabelMutacoes:Set(table.concat(logs.Mutacoes, "\n"))
+    LabelAutomacao:Set(table.concat(logs.Automacao, "\n"))
+    LabelErros:Set(table.concat(logs.Erros, "\n"))
 end
 
 -- Botão para copiar logs
-LogTab:CreateButton({
+AbaLogs:CreateButton({
     Name = "Copiar Todos os Logs",
     Callback = function()
         if setclipboard then
-            local allLogs = "Remotes:\n" .. table.concat(logs.Remotes, "\n") .. "\n\nBrainrots:\n" .. table.concat(logs.Brainrots, "\n") .. "\n\nMutações:\n" .. table.concat(logs.Mutations, "\n") .. "\n\nAutomação:\n" .. table.concat(logs.Automation, "\n") .. "\n\nErros:\n" .. table.concat(logs.Errors, "\n")
-            setclipboard(allLogs)
-            notify("Sucesso", "Logs copiados para a área de transferência!", 5)
-            addLog("Automation", "Logs copiados para a área de transferência")
+            local todosLogs = "Remotes:\n" .. table.concat(logs.Remotes, "\n") ..
+                "\n\nBrainrots:\n" .. table.concat(logs.Brainrots, "\n") ..
+                "\n\nMutações:\n" .. table.concat(logs.Mutacoes, "\n") ..
+                "\n\nAutomação:\n" .. table.concat(logs.Automacao, "\n") ..
+                "\n\nErros:\n" .. table.concat(logs.Erros, "\n")
+            setclipboard(todosLogs)
+            notificar("Sucesso", "Logs copiados para a área de transferência!", 5)
+            adicionarLog("Automacao", "Logs copiados para a área de transferência")
         else
-            notify("Erro", "Função setclipboard não suportada!", 5)
-            addLog("Errors", "setclipboard não suportado")
+            notificar("Erro", "Função setclipboard não suportada!", 5)
+            adicionarLog("Erros", "setclipboard não suportado")
         end
-        updateLogs()
+        atualizarLogs()
     end
 })
 
--- Botão para listar Remote Events/Functions
-MainTab:CreateButton({
+-- Botão para listar Remotes
+AbaPrincipal:CreateButton({
     Name = "Listar Todos os Remotes (use Dex Explorer para mais detalhes)",
     Callback = function()
-        local remotes = listRemotes()
+        local remotes = listarRemotes()
         if #remotes > 0 then
-            local remoteList = table.concat(remotes, "\n")
-            notify("Remotes Encontrados", remoteList, 10)
-            addLog("Remotes", "Remotes listados:\n" .. remoteList)
+            local lista = table.concat(remotes, "\n")
+            notificar("Remotes Encontrados", lista, 10)
+            adicionarLog("Remotes", "Remotes listados:\n" .. lista)
         else
-            notify("Erro", "Nenhum Remote encontrado! Use Dex Explorer.", 5)
-            addLog("Errors", "Nenhum Remote encontrado")
+            notificar("Erro", "Nenhum Remote encontrado! Use Dex Explorer.", 5)
+            adicionarLog("Erros", "Nenhum Remote encontrado")
         end
-        updateLogs()
+        atualizarLogs()
     end
 })
 
--- Botão para explorar o Workspace
-MainTab:CreateButton({
+-- Botão para explorar Workspace
+AbaPrincipal:CreateButton({
     Name = "Explorar Workspace (Brainrots/Conveyor)",
     Callback = function()
-        local objects = exploreWorkspace()
-        if #objects > 0 then
-            local objectList = table.concat(objects, "\n")
-            notify("Objetos Encontrados", objectList, 10)
-            addLog("Brainrots", "Objetos listados:\n" .. objectList)
+        local objetos = explorarWorkspace()
+        if #objetos > 0 then
+            local lista = table.concat(objetos, "\n")
+            notificar("Objetos Encontrados", lista, 10)
+            adicionarLog("Brainrots", "Objetos listados:\n" .. lista)
         else
-            notify("Erro", "Nenhum Brainrot ou Conveyor encontrado!", 5)
-            addLog("Errors", "Nenhum Brainrot ou Conveyor encontrado")
+            notificar("Erro", "Nenhum Brainrot ou Conveyor encontrado!", 5)
+            adicionarLog("Erros", "Nenhum Brainrot ou Conveyor encontrado")
         end
-        updateLogs()
+        atualizarLogs()
     end
 })
 
--- Dropdown para disparar eventos
-MainTab:CreateDropdown({
+-- Dropdown para eventos
+AbaPrincipal:CreateDropdown({
     Name = "Disparar Evento",
-    Options = eventList,
-    CurrentOption = eventList[1],
-    Callback = function(option)
-        triggerRemote(option)
-        updateLogs()
+    Options = listaEventos,
+    CurrentOption = listaEventos[1],
+    Callback = function(opcao)
+        acionarRemote(opcao)
+        atualizarLogs()
     end
 })
 
 -- Dropdowns para spawnar Brainrot com mutação
-local selectedBrainrot = brainrotList[1]
-local selectedMutation = mutationList[1]
+local brainrotSelecionado = listaBrainrots[1]
+local mutacaoSelecionada = listaMutacoes[1]
 
-MainTab:CreateDropdown({
+AbaPrincipal:CreateDropdown({
     Name = "Selecionar Brainrot",
-    Options = brainrotList,
-    CurrentOption = brainrotList[1],
-    Callback = function(option)
-        selectedBrainrot = option
-        addLog("Brainrots", "Brainrot selecionado: " .. option)
-        updateLogs()
+    Options = listaBrainrots,
+    CurrentOption = listaBrainrots[1],
+    Callback = function(opcao)
+        brainrotSelecionado = opcao
+        adicionarLog("Brainrots", "Brainrot selecionado: " .. opcao)
+        atualizarLogs()
     end
 })
 
-MainTab:CreateDropdown({
+AbaPrincipal:CreateDropdown({
     Name = "Selecionar Mutação",
-    Options = mutationList,
-    CurrentOption = mutationList[1],
-    Callback = function(option)
-        selectedMutation = option
-        addLog("Mutations", "Mutação selecionada: " .. option)
-        updateLogs()
+    Options = listaMutacoes,
+    CurrentOption = listaMutacoes[1],
+    Callback = function(opcao)
+        mutacaoSelecionada = opcao
+        adicionarLog("Mutacoes", "Mutação selecionada: " .. opcao)
+        atualizarLogs()
     end
 })
 
-MainTab:CreateButton({
+AbaPrincipal:CreateButton({
     Name = "Spawnar Brainrot com Mutação",
     Callback = function()
-        spawnBrainrot(selectedBrainrot, selectedMutation)
-        updateLogs()
+        spawnarBrainrot(brainrotSelecionado, mutacaoSelecionada)
+        atualizarLogs()
     end
 })
 
--- Campo de texto para disparar Remote personalizado
-MainTab:CreateInput({
+AbaPrincipal:CreateInput({
     Name = "Disparar Remote Personalizado (ex.: SpawnBrainrot)",
     PlaceholderText = "Digite o nome do Remote",
-    Callback = function(text)
-        if text ~= "" then
-            triggerRemote(text)
+    Callback = function(texto)
+        if texto ~= "" then
+            acionarRemote(texto)
         else
-            notify("Erro", "Digite um nome de Remote válido!", 5)
-            addLog("Errors", "Nome de Remote inválido")
+            notificar("Erro", "Digite um nome de Remote válido!", 5)
+            adicionarLog("Erros", "Nome de Remote inválido")
         end
-        updateLogs()
+        atualizarLogs()
     end
 })
 
--- Toggles para automação
-AutomationTab:CreateToggle({
+AbaAutomacao:CreateToggle({
     Name = "Ativar ESP (Highlight Brainrots)",
     CurrentValue = false,
-    Callback = function(state)
-        toggleESP(state)
-        updateLogs()
+    Callback = function(estado)
+        ativarESP(estado)
+        atualizarLogs()
     end
 })
 
-AutomationTab:CreateToggle({
+AbaAutomacao:CreateToggle({
     Name = "Ativar Auto Collect (Coletar Moeda)",
     CurrentValue = false,
-    Callback = function(state)
-        toggleAutoCollect(state)
-        updateLogs()
+    Callback = function(estado)
+        ativarAutoCollect(estado)
+        atualizarLogs()
     end
 })
 
-AutomationTab:CreateToggle({
+AbaAutomacao:CreateToggle({
     Name = "Ativar Auto Steal (Roubar Brainrots)",
     CurrentValue = false,
-    Callback = function(state)
-        toggleAutoSteal(state)
-        updateLogs()
+    Callback = function(estado)
+        ativarAutoSteal(estado)
+        atualizarLogs()
     end
 })
 
-AutomationTab:CreateToggle({
+AbaAutomacao:CreateToggle({
     Name = "Monitorar Eventos",
     CurrentValue = false,
-    Callback = function(state)
-        if state then
-            notify("Monitoramento", "Monitorando eventos (ex.: Bloodmoon)...", 5)
-            addLog("Automation", "Monitoramento de eventos ativado")
-            monitorEvents()
+    Callback = function(estado)
+        if estado then
+            notificar("Monitoramento", "Monitorando eventos (ex.: Bloodmoon)...", 5)
+            adicionarLog("Automacao", "Monitoramento de eventos ativado")
+            monitorarEventos()
         else
-            addLog("Automation", "Monitoramento de eventos desativado")
+            adicionarLog("Automacao", "Monitoramento de eventos desativado")
         end
-        updateLogs()
+        atualizarLogs()
     end
 })
 
--- Atualizar logs periodicamente
+-- Atualização automática dos logs
 spawn(function()
     while wait(1) do
-        updateLogs()
+        atualizarLogs()
     end
 end)
 
--- Inicialização
-notify("Script Carregado", "Script Keyless Ultimate para Steal a Brainrot iniciado!", 5)
-addLog("Automation", "Script iniciado")
+-- Inicialização e checagem de jogo
+notificar("Script Carregado", "Script Keyless Ultimate para Steal a Brainrot iniciado!", 5)
+adicionarLog("Automacao", "Script iniciado")
 
--- Verifica se o jogador está no jogo
-if game.PlaceId == 126884695634066 then -- ID do Steal a Brainrot
+if game.PlaceId == 126884695634066 then
     Rayfield:Load()
 else
-    notify("Erro", "Este script é para Steal a Brainrot! Jogo incorreto.", 10)
-    addLog("Errors", "Jogo incorreto (PlaceId: " .. game.PlaceId .. ")")
+    notificar("Erro", "Este script é para Steal a Brainrot! Jogo incorreto.", 10)
+    adicionarLog("Erros", "Jogo incorreto (PlaceId: " .. game.PlaceId .. ")")
 end
 
--- Loop para manter o script ativo
 while wait(1) do
     if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("Humanoid") then
-        notify("Aviso", "Aguardando personagem carregar...", 3)
-        addLog("Errors", "Aguardando personagem carregar")
+        notificar("Aviso", "Aguardando personagem carregar...", 3)
+        adicionarLog("Erros", "Aguardando personagem carregar")
     end
 end
