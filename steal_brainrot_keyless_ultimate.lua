@@ -1,346 +1,297 @@
 --[[
-    ███╗░░░██╗███████╗██╗░░░██╗███████╗██████╗░  ██╗░░░██╗██████╗░
-    ████╗░██║██╔════╝██║░░░██║██╔════╝██╔══██╗  ██║░░░██║╚════██╗
-    ██╔██╗██║█████╗░░╚██╗░██╔╝█████╗░░██████╔╝  ╚██╗░██╔╝░█████╔╝
-    ██║╚████║██╔══╝░░░╚████╔╝░██╔══╝░░██╔══██╗  ░╚████╔╝░░╚═══██╗
-    ██║░╚███║███████╗░░╚██╔╝░░███████╗██║░░██║  ░░╚██╔╝░░██████╔╝
-    ╚═╝░░╚══╝╚══════╝░░░╚═╝░░░╚══════╝╚═╝░░╚═╝  ░░░╚═╝░░░╚═════╝░
-    
-    🌟 STEAL A BRAINROT - ULTRA SUPREME DEFINITIVE EDITION v7.1.0 🌟
-    By: math741
-    Last Update: 2025-08-22 16:23:04 UTC
-    
-    FEATURES:
-    ⚡ Sistema Neural Quântico
-    🚀 Performance Definitiva
-    🎮 Interface Ultra Adaptativa
-    🌌 Spawn Universal Supreme
-    🤖 Farm IA Definitivo
-    🎯 ESP 6D Neural
-    🛡️ Proteção Absoluta
+    🌟 STEAL A BRAINROT - REPLICATOR EDITION V8 🌟
+    Desenvolvido por: math741
+    Versão: 8.0.0
+    Última atualização: 2025-08-22 16:30:51
 ]]
 
--- Proteção Inicial Ultra Suprema
-if getgenv().UltraSupremeProtected then return end
-getgenv().UltraSupremeProtected = true
+-- Proteção Inicial
+if getgenv().ReplicatorProtected then return end
+getgenv().ReplicatorProtected = true
 
--- Services com Cache Neural
-local Services = setmetatable({
-    _cache = {},
-    _neural = {},
-    _quantum = {}
-}, {
-    __index = function(self, key)
-        if not self._cache[key] then
-            self._cache[key] = game:GetService(key)
-            self._neural[key] = {
-                loadTime = os.clock(),
-                calls = 0,
-                performance = {}
-            }
-        end
-        self._neural[key].calls = self._neural[key].calls + 1
-        return self._cache[key]
-    end
-})
-
--- Configurações Ultra Supremas
-local SUPREME = {
-    VERSION = "7.1.0",
-    AUTHOR = "math741",
-    UPDATE = "2025-08-22 16:23:04",
-    THEME = {
-        PRIMARY = Color3.fromRGB(20, 20, 30),
-        SECONDARY = Color3.fromRGB(30, 30, 40),
-        ACCENT = Color3.fromRGB(255, 70, 70),
-        NEURAL = Color3.fromRGB(70, 200, 255),
-        QUANTUM = Color3.fromRGB(255, 70, 255),
-        SUCCESS = Color3.fromRGB(70, 255, 70),
-        WARNING = Color3.fromRGB(255, 255, 70),
-        ERROR = Color3.fromRGB(255, 70, 70),
-        GRADIENTS = {
-            SUPREME = ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 70, 70)),
-                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 70, 255)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(70, 70, 255))
-            }),
-            QUANTUM = ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(70, 200, 255)),
-                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 70, 255)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(70, 200, 255))
-            })
-        }
-    }
+-- Serviços
+local Services = {
+    Players = game:GetService("Players"),
+    RunService = game:GetService("RunService"),
+    ReplicatedStorage = game:GetService("ReplicatedStorage"),
+    Workspace = game:GetService("Workspace")
 }
 
--- Sistema de Brainrot Ultra Supremo
-local BrainrotSystem = {
-    brainrots = {},
+-- Sistema de Replicação
+local Replicator = {
+    events = {},
     remotes = {},
     cache = {},
-    stats = {
-        spawns = 0,
-        success = 0,
-        fails = 0
-    }
+    logs = {}
 }
 
-function BrainrotSystem:Initialize()
-    -- Scan Neural de Brainrots
+-- Scanner de Eventos
+function Replicator:ScanRemotes()
+    print("🔍 Iniciando scan de remotes...")
+    
+    -- Procura em todos os serviços
     for _, obj in pairs(game:GetDescendants()) do
-        if obj:IsA("Model") and 
-           (obj.Name:lower():find("brainrot") or 
-            obj.Name:lower():find("pet") or 
-            obj.Name:lower():find("creature")) then
-            table.insert(self.brainrots, {
+        if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
+            table.insert(self.remotes, {
+                remote = obj,
                 name = obj.Name,
-                model = obj,
-                rarity = self:DetectRarity(obj)
+                path = obj:GetFullName(),
+                calls = 0,
+                args = {}
+            })
+            print("📡 Remote encontrado:", obj.Name)
+        end
+    end
+end
+
+-- Sistema de Captura de Eventos
+function Replicator:HookRemotes()
+    print("🎣 Iniciando hook dos remotes...")
+    
+    for _, remoteData in pairs(self.remotes) do
+        local remote = remoteData.remote
+        
+        -- Hook do FireServer
+        if remote:IsA("RemoteEvent") then
+            local oldFireServer = remote.FireServer
+            remote.FireServer = newcclosure(function(self, ...)
+                local args = {...}
+                remoteData.calls = remoteData.calls + 1
+                table.insert(remoteData.args, args)
+                
+                -- Guarda apenas os últimos 10 argumentos
+                if #remoteData.args > 10 then
+                    table.remove(remoteData.args, 1)
+                end
+                
+                print(string.format("🔄 Remote chamado: %s | Args: %s", 
+                    remoteData.name, 
+                    table.concat(args, ", ")
+                ))
+                
+                return oldFireServer(self, ...)
+            end)
+        end
+    end
+end
+
+-- Sistema de Replicação de Brainrot
+function Replicator:ReplicateBrainrot(target)
+    print("🎯 Iniciando replicação do Brainrot:", target.Name)
+    
+    -- Captura propriedades do Brainrot
+    local properties = {
+        CFrame = target.PrimaryPart and target.PrimaryPart.CFrame or target:GetPivot(),
+        Size = target.PrimaryPart and target.PrimaryPart.Size or Vector3.new(1, 1, 1),
+        BrickColor = target.PrimaryPart and target.PrimaryPart.BrickColor or BrickColor.new("Medium stone grey"),
+        Material = target.PrimaryPart and target.PrimaryPart.Material or Enum.Material.Plastic
+    }
+    
+    -- Captura animações
+    local animations = {}
+    if target:FindFirstChild("Humanoid") and target.Humanoid:FindFirstChild("Animator") then
+        for _, track in pairs(target.Humanoid.Animator:GetPlayingAnimationTracks()) do
+            table.insert(animations, {
+                id = track.Animation.AnimationId,
+                speed = track.Speed,
+                weight = track.WeightCurrent
             })
         end
-        
-        -- Scan de Remotes
-        if (obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction")) and
-           (obj.Name:lower():find("spawn") or 
-            obj.Name:lower():find("summon") or 
-            obj.Name:lower():find("create")) then
-            table.insert(self.remotes, obj)
-        end
-    end
-end
-
-function BrainrotSystem:DetectRarity(model)
-    local name = model.Name:lower()
-    if name:find("mythic") then return 5
-    elseif name:find("legendary") then return 4
-    elseif name:find("epic") then return 3
-    elseif name:find("rare") then return 2
-    else return 1 end
-end
-
-function BrainrotSystem:Spawn(brainrotName, mutation)
-    local success = false
-    
-    -- Sistema Neural de Spawn
-    for _, remote in pairs(self.remotes) do
-        -- Padrões de Spawn
-        local patterns = {
-            function() remote:FireServer(brainrotName) end,
-            function() remote:FireServer(brainrotName, mutation) end,
-            function() remote:FireServer("Spawn", brainrotName) end,
-            function() remote:FireServer({name = brainrotName, type = mutation}) end,
-            function() remote:FireServer("summon", brainrotName) end
-        }
-        
-        -- Tenta todos os padrões
-        for _, pattern in pairs(patterns) do
-            local s, e = pcall(pattern)
-            if s then
-                success = true
-                self.stats.spawns = self.stats.spawns + 1
-                break
-            end
-        end
-        
-        if success then break end
     end
     
-    return success
-end
-
--- Sistema de Farm Ultra Neural
-local FarmSystem = {
-    enabled = false,
-    settings = {
-        range = 50,
-        speed = 0.1,
-        smartPath = true,
-        antiLag = true
-    },
-    stats = {
-        started = 0,
-        collected = 0,
-        efficiency = 0
+    -- Captura efeitos
+    local effects = {}
+    for _, part in pairs(target:GetDescendants()) do
+        if part:IsA("ParticleEmitter") then
+            table.insert(effects, {
+                part = part.Name,
+                properties = {
+                    Color = part.Color,
+                    Size = part.Size,
+                    Speed = part.Speed,
+                    Rate = part.Rate
+                }
+            })
+        end
+    end
+    
+    -- Armazena dados capturados
+    local replicationData = {
+        name = target.Name,
+        class = target.ClassName,
+        properties = properties,
+        animations = animations,
+        effects = effects,
+        timestamp = os.time()
     }
-}
-
-function FarmSystem:Start()
-    if self.enabled then return end
-    self.enabled = true
-    self.stats.started = os.clock()
     
-    spawn(function()
-        while self.enabled do
-            self:CycleFarm()
-            wait(self.settings.speed)
-        end
-    end)
+    -- Salva no cache
+    self.cache[target.Name] = replicationData
+    
+    print("✅ Replicação completa!")
+    return replicationData
 end
 
-function FarmSystem:CycleFarm()
-    pcall(function()
-        local char = Services.Players.LocalPlayer.Character
-        if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+-- Sistema de Reprodução
+function Replicator:PlayReplication(data)
+    print("▶️ Reproduzindo replicação:", data.name)
+    
+    -- Cria modelo base
+    local model = Instance.new("Model")
+    model.Name = data.name .. "_Replicated"
+    
+    -- Cria parte principal
+    local main = Instance.new("Part")
+    main.CFrame = data.properties.CFrame
+    main.Size = data.properties.Size
+    main.BrickColor = data.properties.BrickColor
+    main.Material = data.properties.Material
+    main.Anchored = true
+    main.Parent = model
+    
+    -- Adiciona animações
+    if #data.animations > 0 then
+        local humanoid = Instance.new("Humanoid")
+        local animator = Instance.new("Animator")
+        animator.Parent = humanoid
+        humanoid.Parent = model
         
-        -- Scan de Itens
-        local items = self:ScanItems()
-        local target = self:GetBestTarget(items)
-        
-        if target then
-            -- Teleporte Otimizado
-            char.HumanoidRootPart.CFrame = target.CFrame
-            wait(0.1)
+        for _, anim in pairs(data.animations) do
+            local animation = Instance.new("Animation")
+            animation.AnimationId = anim.id
             
-            -- Simulação de Toque
-            firetouchinterest(char.HumanoidRootPart, target, 0)
-            wait()
-            firetouchinterest(char.HumanoidRootPart, target, 1)
-            
-            self.stats.collected = self.stats.collected + 1
-        end
-    end)
-end
-
-function FarmSystem:ScanItems()
-    local items = {}
-    for _, obj in pairs(Services.Workspace:GetDescendants()) do
-        if obj:IsA("BasePart") and
-           (obj.Name:lower():find("collect") or
-            obj.Name:lower():find("cash") or
-            obj.Name:lower():find("coin")) then
-            table.insert(items, obj)
-        end
-    end
-    return items
-end
-
-function FarmSystem:GetBestTarget(items)
-    local char = Services.Players.LocalPlayer.Character
-    if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
-    
-    local closest = nil
-    local minDist = math.huge
-    
-    for _, item in pairs(items) do
-        local dist = (char.HumanoidRootPart.Position - item.Position).Magnitude
-        if dist < minDist and dist <= self.settings.range then
-            closest = item
-            minDist = dist
+            local track = animator:LoadAnimation(animation)
+            track:Play()
+            track:AdjustSpeed(anim.speed)
+            track:AdjustWeight(anim.weight)
         end
     end
     
-    return closest
+    -- Adiciona efeitos
+    for _, effect in pairs(data.effects) do
+        local emitter = Instance.new("ParticleEmitter")
+        emitter.Color = effect.properties.Color
+        emitter.Size = effect.properties.Size
+        emitter.Speed = effect.properties.Speed
+        emitter.Rate = effect.properties.Rate
+        emitter.Parent = main
+    end
+    
+    model.Parent = workspace
+    print("✅ Replicação reproduzida!")
+    return model
 end
 
--- Interface Ultra Suprema
-local UltraUI = {}
-UltraUI.__index = UltraUI
+-- Interface do Replicador
+local ReplicatorUI = {}
+ReplicatorUI.__index = ReplicatorUI
 
-function UltraUI.new()
-    local self = setmetatable({}, UltraUI)
+function ReplicatorUI.new()
+    local self = setmetatable({}, ReplicatorUI)
     
-    -- GUI Base
+    -- GUI Principal
     self.gui = Instance.new("ScreenGui")
-    self.gui.Name = "UltraSupremeUI"
+    self.gui.Name = "BrainrotReplicator"
     
     -- Frame Principal
     self.mainFrame = Instance.new("Frame")
-    self.mainFrame.Name = "MainFrame"
-    self.mainFrame.Size = UDim2.new(0, 800, 0, 500)
-    self.mainFrame.Position = UDim2.new(0.5, -400, 0.5, -250)
-    self.mainFrame.BackgroundColor3 = SUPREME.THEME.PRIMARY
+    self.mainFrame.Size = UDim2.new(0, 300, 0, 400)
+    self.mainFrame.Position = UDim2.new(1, -320, 0.5, -200)
+    self.mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    self.mainFrame.BorderSizePixel = 0
     self.mainFrame.Parent = self.gui
     
-    -- Adiciona Elementos Visuais
-    self:CreateVisuals()
+    -- Título
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, 0, 0, 40)
+    title.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+    title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    title.Text = "Brainrot Replicator v8"
+    title.TextSize = 18
+    title.Font = Enum.Font.GothamBold
+    title.Parent = self.mainFrame
     
-    -- Cria Abas
-    self:CreateTabs()
+    -- Lista de Brainrots
+    self.brainrotList = Instance.new("ScrollingFrame")
+    self.brainrotList.Size = UDim2.new(1, -20, 1, -60)
+    self.brainrotList.Position = UDim2.new(0, 10, 0, 50)
+    self.brainrotList.BackgroundTransparency = 1
+    self.brainrotList.ScrollBarThickness = 4
+    self.brainrotList.Parent = self.mainFrame
+    
+    -- Auto Layout
+    local listLayout = Instance.new("UIListLayout")
+    listLayout.Padding = UDim.new(0, 5)
+    listLayout.Parent = self.brainrotList
     
     return self
 end
 
-function UltraUI:CreateVisuals()
-    -- Corner
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 10)
-    corner.Parent = self.mainFrame
+function ReplicatorUI:AddBrainrot(brainrot)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, 0, 0, 40)
+    button.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+    button.Text = brainrot.Name
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.TextSize = 14
+    button.Parent = self.brainrotList
     
-    -- Gradient
-    local gradient = Instance.new("UIGradient")
-    gradient.Color = SUPREME.THEME.GRADIENTS.SUPREME
-    gradient.Rotation = 45
-    gradient.Parent = self.mainFrame
+    -- Botões de ação
+    local replicateBtn = Instance.new("TextButton")
+    replicateBtn.Size = UDim2.new(0, 80, 1, -10)
+    replicateBtn.Position = UDim2.new(1, -85, 0, 5)
+    replicateBtn.BackgroundColor3 = Color3.fromRGB(60, 200, 60)
+    replicateBtn.Text = "Replicar"
+    replicateBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    replicateBtn.Parent = button
     
-    -- Efeito de Partículas
-    spawn(function()
-        while wait(0.1) do
-            gradient.Rotation = gradient.Rotation + 1
-            if gradient.Rotation >= 360 then
-                gradient.Rotation = 0
-            end
-        end
+    -- Eventos
+    replicateBtn.MouseButton1Click:Connect(function()
+        local data = Replicator:ReplicateBrainrot(brainrot)
+        Replicator:PlayReplication(data)
     end)
 end
 
-function UltraUI:CreateTabs()
-    -- Abas
-    local spawnTab = self:CreateTab("Spawn")
-    local farmTab = self:CreateTab("Farm")
-    local visualTab = self:CreateTab("Visual")
-    
-    -- Spawn Tab Content
-    self:CreateSpawnContent(spawnTab)
-    
-    -- Farm Tab Content
-    self:CreateFarmContent(farmTab)
-    
-    -- Visual Tab Content
-    self:CreateVisualContent(visualTab)
-end
-
 -- Inicialização
-local function InitializeUltraSupreme()
-    -- Inicializa Sistemas
-    BrainrotSystem:Initialize()
+local function Initialize()
+    print("🚀 Iniciando Brainrot Replicator...")
     
-    -- Cria Interface
-    local UI = UltraUI.new()
+    -- Inicializa sistemas
+    Replicator:ScanRemotes()
+    Replicator:HookRemotes()
+    
+    -- Cria interface
+    local UI = ReplicatorUI.new()
+    
+    -- Scan inicial de Brainrots
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") and 
+           (obj.Name:lower():find("brainrot") or 
+            obj.Name:lower():find("pet") or 
+            obj.Name:lower():find("creature")) then
+            UI:AddBrainrot(obj)
+        end
+    end
+    
+    -- Scan contínuo
+    Services.RunService.Heartbeat:Connect(function()
+        for _, obj in pairs(workspace:GetChildren()) do
+            if obj:IsA("Model") and 
+               (obj.Name:lower():find("brainrot") or 
+                obj.Name:lower():find("pet") or 
+                obj.Name:lower():find("creature")) and
+               not UI.brainrotList:FindFirstChild(obj.Name) then
+                UI:AddBrainrot(obj)
+            end
+        end
+    end)
     
     -- Parent to CoreGui
-    if syn then
-        syn.protect_gui(UI.gui)
-    end
     UI.gui.Parent = game:GetService("CoreGui")
     
-    -- Notificação
-    local notif = Instance.new("TextLabel")
-    notif.Text = "Ultra Supreme v7.1.0 Initialized!"
-    notif.Size = UDim2.new(0, 300, 0, 50)
-    notif.Position = UDim2.new(0.5, -150, 0, -50)
-    notif.BackgroundColor3 = SUPREME.THEME.SUCCESS
-    notif.TextColor3 = SUPREME.THEME.PRIMARY
-    notif.Parent = UI.gui
-    
-    -- Animação
-    notif:TweenPosition(
-        UDim2.new(0.5, -150, 0, 20),
-        Enum.EasingDirection.Out,
-        Enum.EasingStyle.Bounce,
-        1,
-        true
-    )
-    wait(3)
-    notif:TweenPosition(
-        UDim2.new(0.5, -150, 0, -50),
-        Enum.EasingDirection.Out,
-        Enum.EasingStyle.Quad,
-        0.5,
-        true
-    )
-    
+    print("✨ Replicator iniciado com sucesso!")
     return UI
 end
 
 -- Execute
-return InitializeUltraSupreme()
+return Initialize()
