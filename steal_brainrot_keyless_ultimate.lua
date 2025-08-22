@@ -305,13 +305,14 @@ local UI = {}
 
 function UI.Initialize()
     local success, Rayfield = pcall(function()
-        return loadstring(game:HttpGet(CONFIG.URLS.RAYFIELD))()
+        return loadstring(game:HttpGet("https://raw.githubusercontent.com/UI-Interface/CustomFIeld/main/RayField.lua"))()
     end)
     
     if not success then
         Logger.Add(Logger.Categories.ERROR, "Falha ao carregar Rayfield")
         return false
     end
+
     
     local Window = Rayfield:CreateWindow({
         Name = string.format("Steal a Brainrot Ultimate v%s", CONFIG.VERSAO),
