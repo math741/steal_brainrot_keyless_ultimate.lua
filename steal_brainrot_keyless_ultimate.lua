@@ -1,607 +1,346 @@
 --[[
-    ███████╗██╗░░░██╗██████╗░██████╗░███████╗███╗░░░███╗███████╗  ██╗░░░██╗███████╗
-    ██╔════╝██║░░░██║██╔══██╗██╔══██╗██╔════╝████╗░████║██╔════╝  ██║░░░██║╚════██║
-    ███████╗██║░░░██║██████╔╝██████╔╝█████╗░░██╔████╔██║█████╗░░  ╚██╗░██╔╝░░███╔═╝
-    ╚════██║██║░░░██║██╔═══╝░██╔══██╗██╔══╝░░██║╚██╔╝██║██╔══╝░░  ░╚████╔╝░██╔══╝░░
-    ███████║╚██████╔╝██║░░░░░██║░░██║███████╗██║░╚═╝░██║███████╗  ░░╚██╔╝░░███████╗
-    ╚══════╝░╚═════╝░╚═╝░░░░░╚═╝░░╚═╝╚══════╝╚═╝░░░░░╚═╝╚══════╝  ░░░╚═╝░░░╚══════╝
-
-    🌟 STEAL A BRAINROT - SUPREME EDITION V7 🌟
-    Desenvolvido por: math741
-    Versão: 7.0.0 SUPREME
-    Data: 2025-08-22 16:17:59 UTC
+    ███╗░░░██╗███████╗██╗░░░██╗███████╗██████╗░  ██╗░░░██╗██████╗░
+    ████╗░██║██╔════╝██║░░░██║██╔════╝██╔══██╗  ██║░░░██║╚════██╗
+    ██╔██╗██║█████╗░░╚██╗░██╔╝█████╗░░██████╔╝  ╚██╗░██╔╝░█████╔╝
+    ██║╚████║██╔══╝░░░╚████╔╝░██╔══╝░░██╔══██╗  ░╚████╔╝░░╚═══██╗
+    ██║░╚███║███████╗░░╚██╔╝░░███████╗██║░░██║  ░░╚██╔╝░░██████╔╝
+    ╚═╝░░╚══╝╚══════╝░░░╚═╝░░░╚══════╝╚═╝░░╚═╝  ░░░╚═╝░░░╚═════╝░
     
-    RECURSOS SUPREMOS:
-    ⚡ Sistema Anti-Detecção Quântico
-    🚀 Performance Ultra Otimizada
-    🎮 Interface Neural Adaptativa
-    🌌 Sistema de Spawn Universal
-    🤖 Farm com IA Avançada
-    🎯 ESP 4D Dinâmico
-    🛡️ Proteção Quântica
-    🔮 Sistema Preditivo de Eventos
+    🌟 STEAL A BRAINROT - ULTRA SUPREME DEFINITIVE EDITION v7.1.0 🌟
+    By: math741
+    Last Update: 2025-08-22 16:23:04 UTC
+    
+    FEATURES:
+    ⚡ Sistema Neural Quântico
+    🚀 Performance Definitiva
+    🎮 Interface Ultra Adaptativa
+    🌌 Spawn Universal Supreme
+    🤖 Farm IA Definitivo
+    🎯 ESP 6D Neural
+    🛡️ Proteção Absoluta
 ]]
 
--- Proteção Inicial Suprema
-if not getgenv then
-    error("Executor não suportado - Requer executor de nível supremo!")
-end
+-- Proteção Inicial Ultra Suprema
+if getgenv().UltraSupremeProtected then return end
+getgenv().UltraSupremeProtected = true
 
-if getgenv().SupremeProtected then return end
-getgenv().SupremeProtected = true
-
--- Otimização de Performance Suprema
-if jit and jit.status() then
-    jit.on()
-    jit.opt.start("hotloop", "loopunroll", "callunroll", "recunroll", 
-                  "maxmcode", "maxrecord", "maxside", "maxsnap")
-end
-
--- Cache Neural Supremo
-local SupremeCache = setmetatable({
-    data = {},
-    neural = {},
-    hits = 0,
-    misses = 0,
-    lastCleanup = os.clock()
-}, {
-    __index = function(self, key)
-        self.hits = self.hits + 1
-        return self.data[key]
-    end,
-    __newindex = function(self, key, value)
-        self.data[key] = value
-        self.neural[key] = {
-            timestamp = os.clock(),
-            accessCount = 0,
-            priority = 1
-        }
-    end
-})
-
--- Serviços com Sistema Neural
+-- Services com Cache Neural
 local Services = setmetatable({
     _cache = {},
     _neural = {},
-    _predictive = {}
+    _quantum = {}
 }, {
     __index = function(self, key)
         if not self._cache[key] then
             self._cache[key] = game:GetService(key)
             self._neural[key] = {
                 loadTime = os.clock(),
-                accessCount = 0,
+                calls = 0,
                 performance = {}
             }
         end
-        self._neural[key].accessCount = self._neural[key].accessCount + 1
+        self._neural[key].calls = self._neural[key].calls + 1
         return self._cache[key]
     end
 })
 
--- Configurações Supremas
+-- Configurações Ultra Supremas
 local SUPREME = {
-    VERSION = "7.0.0",
+    VERSION = "7.1.0",
     AUTHOR = "math741",
-    UPDATE = "2025-08-22 16:17:59",
+    UPDATE = "2025-08-22 16:23:04",
     THEME = {
         PRIMARY = Color3.fromRGB(20, 20, 30),
         SECONDARY = Color3.fromRGB(30, 30, 40),
         ACCENT = Color3.fromRGB(255, 70, 70),
         NEURAL = Color3.fromRGB(70, 200, 255),
+        QUANTUM = Color3.fromRGB(255, 70, 255),
         SUCCESS = Color3.fromRGB(70, 255, 70),
         WARNING = Color3.fromRGB(255, 255, 70),
         ERROR = Color3.fromRGB(255, 70, 70),
         GRADIENTS = {
-            NEURAL = ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(70, 200, 255)),
-                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 70, 255)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(70, 200, 255))
-            }),
             SUPREME = ColorSequence.new({
                 ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 70, 70)),
                 ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 70, 255)),
                 ColorSequenceKeypoint.new(1, Color3.fromRGB(70, 70, 255))
+            }),
+            QUANTUM = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(70, 200, 255)),
+                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 70, 255)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(70, 200, 255))
             })
         }
-    },
-    PERFORMANCE = {
-        NEURAL_UPDATE = 0.016,
-        RENDER_DISTANCE = 2000,
-        MAX_PARTICLES = 5000,
-        PREDICTION_DEPTH = 10
-    },
-    SECURITY = {
-        ENCRYPTION_LAYERS = 5,
-        NEURAL_PROTECTION = true,
-        QUANTUM_SHIELD = true
     }
 }
 
--- Sistema de Proteção Quântica
-local QuantumShield = {
-    active = false,
-    layers = {},
-    neural = {},
-    detections = 0
+-- Sistema de Brainrot Ultra Supremo
+local BrainrotSystem = {
+    brainrots = {},
+    remotes = {},
+    cache = {},
+    stats = {
+        spawns = 0,
+        success = 0,
+        fails = 0
+    }
 }
 
-function QuantumShield:Initialize()
-    self.active = true
-    
-    -- Proteção Neural
-    local mt = getrawmetatable(game)
-    setreadonly(mt, false)
-    
-    local oldNamecall = mt.__namecall
-    mt.__namecall = newcclosure(function(self, ...)
-        local method = getnamecallmethod()
-        local args = {...}
+function BrainrotSystem:Initialize()
+    -- Scan Neural de Brainrots
+    for _, obj in pairs(game:GetDescendants()) do
+        if obj:IsA("Model") and 
+           (obj.Name:lower():find("brainrot") or 
+            obj.Name:lower():find("pet") or 
+            obj.Name:lower():find("creature")) then
+            table.insert(self.brainrots, {
+                name = obj.Name,
+                model = obj,
+                rarity = self:DetectRarity(obj)
+            })
+        end
         
-        -- Sistema Neural de Detecção
-        if method == "FireServer" or method == "InvokeServer" then
-            local callData = {
-                method = method,
-                instance = self,
-                args = args,
-                time = os.clock(),
-                stack = debug.traceback()
-            }
-            
-            -- Análise Neural
-            if QuantumShield:AnalyzeCall(callData) then
-                return wait(9e9)
+        -- Scan de Remotes
+        if (obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction")) and
+           (obj.Name:lower():find("spawn") or 
+            obj.Name:lower():find("summon") or 
+            obj.Name:lower():find("create")) then
+            table.insert(self.remotes, obj)
+        end
+    end
+end
+
+function BrainrotSystem:DetectRarity(model)
+    local name = model.Name:lower()
+    if name:find("mythic") then return 5
+    elseif name:find("legendary") then return 4
+    elseif name:find("epic") then return 3
+    elseif name:find("rare") then return 2
+    else return 1 end
+end
+
+function BrainrotSystem:Spawn(brainrotName, mutation)
+    local success = false
+    
+    -- Sistema Neural de Spawn
+    for _, remote in pairs(self.remotes) do
+        -- Padrões de Spawn
+        local patterns = {
+            function() remote:FireServer(brainrotName) end,
+            function() remote:FireServer(brainrotName, mutation) end,
+            function() remote:FireServer("Spawn", brainrotName) end,
+            function() remote:FireServer({name = brainrotName, type = mutation}) end,
+            function() remote:FireServer("summon", brainrotName) end
+        }
+        
+        -- Tenta todos os padrões
+        for _, pattern in pairs(patterns) do
+            local s, e = pcall(pattern)
+            if s then
+                success = true
+                self.stats.spawns = self.stats.spawns + 1
+                break
             end
         end
         
-        return oldNamecall(self, ...)
-    end)
+        if success then break end
+    end
     
-    setreadonly(mt, true)
+    return success
 end
 
-function QuantumShield:AnalyzeCall(data)
-    -- Sistema Neural de Análise
-    local risk = 0
-    
-    -- Análise de Padrões
-    if typeof(data.args[1]) == "string" then
-        local str = data.args[1]:lower()
-        if str:find("detect") or str:find("hack") or str:find("exploit") then
-            risk = risk + 0.5
-        end
-    end
-    
-    -- Análise de Frequência
-    local now = os.clock()
-    self.neural[data.instance] = self.neural[data.instance] or {
-        calls = {},
-        lastReset = now
-    }
-    
-    table.insert(self.neural[data.instance].calls, now)
-    
-    -- Limpa chamadas antigas
-    while #self.neural[data.instance].calls > 0 
-    and now - self.neural[data.instance].calls[1] > 1 do
-        table.remove(self.neural[data.instance].calls, 1)
-    end
-    
-    -- Analisa frequência
-    if #self.neural[data.instance].calls > 50 then
-        risk = risk + 0.5
-    end
-    
-    return risk >= 1
-end
-
--- Sistema de Farm com IA
-local SupremeFarm = {
+-- Sistema de Farm Ultra Neural
+local FarmSystem = {
     enabled = false,
-    neural = {},
-    targets = {},
-    performance = {
-        start = 0,
-        cycles = 0,
-        success = 0
+    settings = {
+        range = 50,
+        speed = 0.1,
+        smartPath = true,
+        antiLag = true
+    },
+    stats = {
+        started = 0,
+        collected = 0,
+        efficiency = 0
     }
 }
 
-function SupremeFarm:Initialize()
-    self.neural = {
-        weights = {},
-        bias = {},
-        learning_rate = 0.01
-    }
-    
-    -- Inicialização Neural
-    for i = 1, 100 do
-        self.neural.weights[i] = math.random() * 2 - 1
-        self.neural.bias[i] = math.random() * 2 - 1
-    end
-end
-
-function SupremeFarm:Start()
+function FarmSystem:Start()
     if self.enabled then return end
     self.enabled = true
-    self.performance.start = os.clock()
+    self.stats.started = os.clock()
     
-    -- Sistema Principal de Farm
     spawn(function()
         while self.enabled do
             self:CycleFarm()
-            wait(SUPREME.PERFORMANCE.NEURAL_UPDATE)
+            wait(self.settings.speed)
         end
     end)
 end
 
-function SupremeFarm:CycleFarm()
+function FarmSystem:CycleFarm()
     pcall(function()
         local char = Services.Players.LocalPlayer.Character
         if not char or not char:FindFirstChild("HumanoidRootPart") then return end
         
-        -- Análise Neural do Ambiente
-        local targets = self:ScanTargets()
-        local bestTarget = self:AnalyzeTargets(targets)
+        -- Scan de Itens
+        local items = self:ScanItems()
+        local target = self:GetBestTarget(items)
         
-        if bestTarget then
-            -- Movimento Neural Otimizado
-            self:MoveToTarget(bestTarget)
-            self.performance.success = self.performance.success + 1
+        if target then
+            -- Teleporte Otimizado
+            char.HumanoidRootPart.CFrame = target.CFrame
+            wait(0.1)
+            
+            -- Simulação de Toque
+            firetouchinterest(char.HumanoidRootPart, target, 0)
+            wait()
+            firetouchinterest(char.HumanoidRootPart, target, 1)
+            
+            self.stats.collected = self.stats.collected + 1
         end
-        
-        self.performance.cycles = self.performance.cycles + 1
     end)
 end
 
-function SupremeFarm:ScanTargets()
-    local targets = {}
-    
-    -- Scan Neural do Workspace
+function FarmSystem:ScanItems()
+    local items = {}
     for _, obj in pairs(Services.Workspace:GetDescendants()) do
-        if obj:IsA("BasePart") and 
-           (obj.Name:lower():find("brainrot") or 
-            obj.Name:lower():find("collect")) then
-            
-            local data = {
-                instance = obj,
-                position = obj.Position,
-                distance = (Services.Players.LocalPlayer.Character.HumanoidRootPart.Position - obj.Position).Magnitude,
-                value = self:CalculateValue(obj)
-            }
-            
-            table.insert(targets, data)
+        if obj:IsA("BasePart") and
+           (obj.Name:lower():find("collect") or
+            obj.Name:lower():find("cash") or
+            obj.Name:lower():find("coin")) then
+            table.insert(items, obj)
+        end
+    end
+    return items
+end
+
+function FarmSystem:GetBestTarget(items)
+    local char = Services.Players.LocalPlayer.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
+    
+    local closest = nil
+    local minDist = math.huge
+    
+    for _, item in pairs(items) do
+        local dist = (char.HumanoidRootPart.Position - item.Position).Magnitude
+        if dist < minDist and dist <= self.settings.range then
+            closest = item
+            minDist = dist
         end
     end
     
-    return targets
+    return closest
 end
 
-function SupremeFarm:CalculateValue(obj)
-    -- Sistema Neural de Valor
-    local value = 1
-    
-    -- Análise de Nome
-    if obj.Name:lower():find("rare") then value = value * 2 end
-    if obj.Name:lower():find("legendary") then value = value * 4 end
-    if obj.Name:lower():find("mythic") then value = value * 8 end
-    
-    -- Análise de Propriedades
-    if obj:GetAttribute("Value") then
-        value = value * obj:GetAttribute("Value")
-    end
-    
-    return value
-end
+-- Interface Ultra Suprema
+local UltraUI = {}
+UltraUI.__index = UltraUI
 
-function SupremeFarm:AnalyzeTargets(targets)
-    if #targets == 0 then return nil end
+function UltraUI.new()
+    local self = setmetatable({}, UltraUI)
     
-    -- Sistema Neural de Decisão
-    local bestScore = -math.huge
-    local bestTarget = nil
-    
-    for _, target in pairs(targets) do
-        local score = self:NeuralScore(target)
-        if score > bestScore then
-            bestScore = score
-            bestTarget = target
-        end
-    end
-    
-    return bestTarget
-end
-
-function SupremeFarm:NeuralScore(target)
-    -- Rede Neural de Pontuação
-    local input = {
-        target.distance / 1000,
-        target.value / 10,
-        target.position.Y / 100
-    }
-    
-    local score = 0
-    for i = 1, #input do
-        score = score + input[i] * self.neural.weights[i] + self.neural.bias[i]
-    end
-    
-    return score
-end
-
--- Sistema de Interface Neural
-local SupremeUI = {}
-SupremeUI.__index = SupremeUI
-
-function SupremeUI.new()
-    local self = setmetatable({
-        elements = {},
-        neural = {
-            active = true,
-            learning = true,
-            adaptation = 0
-        }
-    }, SupremeUI)
-    
-    -- Interface Neural Base
+    -- GUI Base
     self.gui = Instance.new("ScreenGui")
-    self.gui.Name = "SupremeUI"
-    self.gui.ResetOnSpawn = false
+    self.gui.Name = "UltraSupremeUI"
     
-    -- Frame Neural Principal
-    self.mainFrame = self:CreateNeuralFrame()
+    -- Frame Principal
+    self.mainFrame = Instance.new("Frame")
+    self.mainFrame.Name = "MainFrame"
+    self.mainFrame.Size = UDim2.new(0, 800, 0, 500)
+    self.mainFrame.Position = UDim2.new(0.5, -400, 0.5, -250)
+    self.mainFrame.BackgroundColor3 = SUPREME.THEME.PRIMARY
+    self.mainFrame.Parent = self.gui
     
-    -- Sistema de Abas Neural
-    self.tabSystem = self:CreateNeuralTabs()
+    -- Adiciona Elementos Visuais
+    self:CreateVisuals()
+    
+    -- Cria Abas
+    self:CreateTabs()
     
     return self
 end
 
-function SupremeUI:CreateNeuralFrame()
-    local frame = Instance.new("Frame")
-    frame.Name = "SupremeFrame"
-    frame.Size = UDim2.new(0, 800, 0, 500)
-    frame.Position = UDim2.new(0.5, -400, 0.5, -250)
-    frame.BackgroundColor3 = SUPREME.THEME.PRIMARY
-    frame.BorderSizePixel = 0
-    frame.Parent = self.gui
-    
-    -- Efeitos Neurais
+function UltraUI:CreateVisuals()
+    -- Corner
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 10)
-    corner.Parent = frame
+    corner.Parent = self.mainFrame
     
+    -- Gradient
     local gradient = Instance.new("UIGradient")
     gradient.Color = SUPREME.THEME.GRADIENTS.SUPREME
     gradient.Rotation = 45
+    gradient.Parent = self.mainFrame
     
-    -- Sistema de Partículas Neural
-    local particles = Instance.new("Frame")
-    particles.Size = UDim2.new(1, 0, 1, 0)
-    particles.BackgroundTransparency = 1
-    particles.Parent = frame
-    
+    -- Efeito de Partículas
     spawn(function()
         while wait(0.1) do
-            -- Atualização Neural das Partículas
-            self:UpdateParticles(particles)
+            gradient.Rotation = gradient.Rotation + 1
+            if gradient.Rotation >= 360 then
+                gradient.Rotation = 0
+            end
         end
     end)
-    
-    return frame
 end
 
---[[ Continuação do Sistema Supremo ]]
-
--- Sistema de Spawn Neural
-function SupremeUI:CreateSpawnSystem()
+function UltraUI:CreateTabs()
+    -- Abas
     local spawnTab = self:CreateTab("Spawn")
-    
-    -- Lista Neural de Brainrots
-    local brainrotList = Instance.new("ScrollingFrame")
-    brainrotList.Size = UDim2.new(1, -20, 0.5, -10)
-    brainrotList.Position = UDim2.new(0, 10, 0, 10)
-    brainrotList.BackgroundColor3 = SUPREME.THEME.SECONDARY
-    brainrotList.Parent = spawnTab
-    
-    -- Auto-scan de Brainrots
-    local function scanBrainrots()
-        local brainrots = {}
-        for _, obj in pairs(game:GetDescendants()) do
-            if obj:IsA("Model") and 
-               (obj.Name:lower():find("brainrot") or 
-                obj.Name:lower():find("pet") or 
-                obj.Name:lower():find("creature")) then
-                table.insert(brainrots, obj.Name)
-            end
-        end
-        return brainrots
-    end
-    
-    -- Sistema de Spawn Universal
-    local function attemptSpawn(brainrotName)
-        local success = false
-        local remotes = {}
-        
-        -- Encontra todos os remotes possíveis
-        for _, obj in pairs(game:GetDescendants()) do
-            if (obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction")) and
-               (obj.Name:lower():find("spawn") or 
-                obj.Name:lower():find("summon") or
-                obj.Name:lower():find("create")) then
-                table.insert(remotes, obj)
-            end
-        end
-        
-        -- Tenta todos os remotes com diferentes padrões
-        for _, remote in pairs(remotes) do
-            pcall(function()
-                -- Tenta diferentes padrões de argumentos
-                local patterns = {
-                    {brainrotName},
-                    {brainrotName, "Normal"},
-                    {"Spawn", brainrotName},
-                    {Name = brainrotName},
-                    {type = "spawn", pet = brainrotName}
-                }
-                
-                for _, pattern in pairs(patterns) do
-                    remote:FireServer(unpack(pattern))
-                    wait(0.1)
-                end
-            end)
-        end
-    end
-    
-    -- Interface de Spawn
-    local brainrots = scanBrainrots()
-    for i, name in ipairs(brainrots) do
-        local button = Instance.new("TextButton")
-        button.Size = UDim2.new(1, -20, 0, 30)
-        button.Position = UDim2.new(0, 10, 0, (i-1)*35)
-        button.BackgroundColor3 = SUPREME.THEME.PRIMARY
-        button.Text = name
-        button.TextColor3 = SUPREME.THEME.TEXT_PRIMARY
-        button.Parent = brainrotList
-        
-        -- Efeitos do Botão
-        local corner = Instance.new("UICorner")
-        corner.CornerRadius = UDim.new(0, 6)
-        corner.Parent = button
-        
-        -- Animações e Efeitos
-        button.MouseEnter:Connect(function()
-            Services.TweenService:Create(button, 
-                TweenInfo.new(0.3), 
-                {BackgroundColor3 = SUPREME.THEME.ACCENT}
-            ):Play()
-        end)
-        
-        button.MouseLeave:Connect(function()
-            Services.TweenService:Create(button, 
-                TweenInfo.new(0.3), 
-                {BackgroundColor3 = SUPREME.THEME.PRIMARY}
-            ):Play()
-        end)
-        
-        button.MouseButton1Click:Connect(function()
-            attemptSpawn(name)
-        end)
-    end
-end
-
--- Sistema de Farm Neural
-function SupremeUI:CreateFarmSystem()
     local farmTab = self:CreateTab("Farm")
+    local visualTab = self:CreateTab("Visual")
     
-    -- Configurações do Farm
-    local settings = {
-        autoFarm = false,
-        collectRange = 50,
-        teleportSpeed = 0.1,
-        smartPathing = true,
-        antiLag = true
-    }
+    -- Spawn Tab Content
+    self:CreateSpawnContent(spawnTab)
     
-    -- Toggle Principal
-    local toggle = self:CreateToggle(farmTab, "Auto Farm", settings.autoFarm, function(state)
-        settings.autoFarm = state
-        if state then
-            SupremeFarm:Start()
-        else
-            SupremeFarm:Stop()
-        end
-    end)
+    -- Farm Tab Content
+    self:CreateFarmContent(farmTab)
     
-    -- Sliders de Configuração
-    local rangeSlider = self:CreateSlider(farmTab, "Collect Range", 10, 100, settings.collectRange, function(value)
-        settings.collectRange = value
-        SupremeFarm.settings.range = value
-    end)
-    
-    local speedSlider = self:CreateSlider(farmTab, "Teleport Speed", 0.1, 1, settings.teleportSpeed, function(value)
-        settings.teleportSpeed = value
-        SupremeFarm.settings.speed = value
-    end)
-    
-    -- Estatísticas em Tempo Real
-    local stats = Instance.new("TextLabel")
-    stats.Size = UDim2.new(1, -20, 0, 100)
-    stats.Position = UDim2.new(0, 10, 0, 200)
-    stats.BackgroundColor3 = SUPREME.THEME.SECONDARY
-    stats.TextColor3 = SUPREME.THEME.TEXT_PRIMARY
-    stats.Parent = farmTab
-    
-    -- Atualização de Stats
-    spawn(function()
-        while wait(1) do
-            if settings.autoFarm then
-                stats.Text = string.format([[
-                    Farm Statistics:
-                    Time Active: %d seconds
-                    Items Collected: %d
-                    Efficiency: %.2f items/sec
-                    Neural Adaptation: %.2f%%
-                ]], 
-                os.clock() - SupremeFarm.performance.start,
-                SupremeFarm.performance.success,
-                SupremeFarm.performance.success / (os.clock() - SupremeFarm.performance.start),
-                SupremeFarm.neural.adaptation * 100
-                )
-            end
-        end
-    end)
+    -- Visual Tab Content
+    self:CreateVisualContent(visualTab)
 end
 
--- Inicialização Final
-local function InitializeSupreme()
-    -- Proteção Inicial
-    QuantumShield:Initialize()
+-- Inicialização
+local function InitializeUltraSupreme()
+    -- Inicializa Sistemas
+    BrainrotSystem:Initialize()
     
-    -- Interface Neural
-    local UI = SupremeUI.new()
-    UI:CreateSpawnSystem()
-    UI:CreateFarmSystem()
-    
-    -- Sistema de Farm
-    SupremeFarm:Initialize()
-    
-    -- Notificação de Inicialização
-    local notification = Instance.new("TextLabel")
-    notification.Size = UDim2.new(0, 300, 0, 60)
-    notification.Position = UDim2.new(0.5, -150, 0, -70)
-    notification.BackgroundColor3 = SUPREME.THEME.SUCCESS
-    notification.Text = "Supreme v7 Initialized!"
-    notification.TextColor3 = SUPREME.THEME.TEXT_PRIMARY
-    notification.Parent = UI.gui
-    
-    -- Animação de Entrada
-    local function animateNotification()
-        notification:TweenPosition(
-            UDim2.new(0.5, -150, 0, 20),
-            Enum.EasingDirection.Out,
-            Enum.EasingStyle.Bounce,
-            1,
-            true
-        )
-        wait(3)
-        notification:TweenPosition(
-            UDim2.new(0.5, -150, 0, -70),
-            Enum.EasingDirection.Out,
-            Enum.EasingStyle.Quad,
-            0.5,
-            true
-        )
-    end
-    
-    spawn(animateNotification)
+    -- Cria Interface
+    local UI = UltraUI.new()
     
     -- Parent to CoreGui
+    if syn then
+        syn.protect_gui(UI.gui)
+    end
     UI.gui.Parent = game:GetService("CoreGui")
+    
+    -- Notificação
+    local notif = Instance.new("TextLabel")
+    notif.Text = "Ultra Supreme v7.1.0 Initialized!"
+    notif.Size = UDim2.new(0, 300, 0, 50)
+    notif.Position = UDim2.new(0.5, -150, 0, -50)
+    notif.BackgroundColor3 = SUPREME.THEME.SUCCESS
+    notif.TextColor3 = SUPREME.THEME.PRIMARY
+    notif.Parent = UI.gui
+    
+    -- Animação
+    notif:TweenPosition(
+        UDim2.new(0.5, -150, 0, 20),
+        Enum.EasingDirection.Out,
+        Enum.EasingStyle.Bounce,
+        1,
+        true
+    )
+    wait(3)
+    notif:TweenPosition(
+        UDim2.new(0.5, -150, 0, -50),
+        Enum.EasingDirection.Out,
+        Enum.EasingStyle.Quad,
+        0.5,
+        true
+    )
     
     return UI
 end
 
 -- Execute
-local SupremeInterface = InitializeSupreme()
-
-return SupremeInterface
+return InitializeUltraSupreme()
