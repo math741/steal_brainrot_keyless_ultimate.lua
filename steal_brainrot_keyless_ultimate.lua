@@ -1,682 +1,428 @@
+-- Script Roblox Otimizado e Corrigido
+-- Verificações de compatibilidade melhoradas
 
--- Proteção Inicial Suprema
-if not getgenv then
-    error("⚠️ Executor não compatível com tecnologia quântica suprema!")
+-- Proteção inicial com verificações
+local function checkCompatibility()
+    local required = {
+        "getgenv",
+        "setfpscap", 
+        "getrawmetatable",
+        "setreadonly",
+        "newcclosure",
+        "getnamecallmethod"
+    }
+    
+    local missing = {}
+    for _, func in ipairs(required) do
+        if not _G[func] then
+            table.insert(missing, func)
+        end
+    end
+    
+    if #missing > 0 then
+        warn("⚠️ Funções não disponíveis: " .. table.concat(missing, ", "))
+        warn("Execute este script em um executor compatível (Synapse X, Krnl, etc.)")
+        return false
+    end
+    
+    return true
 end
-if getgenv and not getgenv().SupremeUnifiedActive then
-    InitializeSupremeSystem()
-else
-    warn("Executor or environment not supported for Supreme Unified v10.")
+
+-- Verifica compatibilidade antes de continuar
+if not checkCompatibility() then
+    return
 end
 
-InitializeProtection()
-if getgenv().SupremeUnifiedActive then return end
-getgenv().SupremeUnifiedActive = true
+-- Proteção contra execução múltipla
+if getgenv().ScriptActive then 
+    warn("Script já está ativo!")
+    return 
+end
+getgenv().ScriptActive = true
 
--- Otimização de Referências
+-- Otimização de referências (cache local)
 local next = next
 local table_insert = table.insert
 local table_remove = table.remove
-local table_sort = table.sort
 local math_random = math.random
 local math_floor = math.floor
 local string_format = string.format
 local os_clock = os.clock
 local task_wait = task.wait
 local task_spawn = task.spawn
-local task_delay = task.delay
+
+-- Serviços do Roblox
 local workspace = game:GetService("Workspace")
 local players = game:GetService("Players")
 local runService = game:GetService("RunService")
 local tweenService = game:GetService("TweenService")
 local userInputService = game:GetService("UserInputService")
-local coreGui = game:GetService("CoreGui")
 
--- Cache Neural Supremo
-local SupremeCache = setmetatable({
-    _data = {},
-    _neural = {},
-    _quantum = {},
-    _dimensional = {},
+-- Sistema de Cache Otimizado
+local Cache = {
+    data = {},
     stats = {
         hits = 0,
         misses = 0,
-        quantum_calls = 0,
-        dimensional_shifts = 0
-    }
-}, {
-    __index = function(self, key)
-        self.stats.hits = self.stats.hits + 1
-        return self._data[key]
-    end,
-    __newindex = function(self, key, value)
-        self.stats.quantum_calls = self.stats.quantum_calls + 1
-        self._quantum[key] = {
-            timestamp = os_clock(),
-            dimension = math_random(1, 10),
-            entropy = math_random(),
-            neural_adaptation = math_random()
-        }
-        self._data[key] = value
-    end
-})
-
--- Sistema de Performance Suprema
-local PerformanceOptimizer = {
-    fps = 0,
-    lastCheck = os_clock(),
-    samples = {},
-    maxSamples = 100,
-    optimizations = {
-        memory = true,
-        render = true,
-        physics = true,
-        network = true
+        calls = 0
     }
 }
 
-function PerformanceOptimizer:Initialize()
-    -- Remove limites de FPS
-    setfpscap(9999)
+function Cache:Get(key)
+    if self.data[key] then
+        self.stats.hits = self.stats.hits + 1
+        return self.data[key]
+    else
+        self.stats.misses = self.stats.misses + 1
+        return nil
+    end
+end
+
+function Cache:Set(key, value)
+    self.stats.calls = self.stats.calls + 1
+    self.data[key] = {
+        value = value,
+        timestamp = os_clock()
+    }
+end
+
+function Cache:Clean()
+    local now = os_clock()
+    local cleaned = 0
     
-    -- Otimizações Supremas
-    settings().Physics.PhysicsEnvironmentalThrottle = 1
-    settings().Physics.AllowSleep = true
-    settings().Physics.UseCSGv2 = false
-    settings().Rendering.QualityLevel = 1
-    settings().Rendering.MeshPartDetailLevel = 0
+    for k, v in pairs(self.data) do
+        if (now - v.timestamp) > 60 then -- Remove após 60 segundos
+            self.data[k] = nil
+            cleaned = cleaned + 1
+        end
+    end
     
-    -- Monitor de Performance
+    if cleaned > 0 then
+        print(string_format("🧹 Cache limpo: %d itens removidos", cleaned))
+    end
+end
+
+-- Sistema de Performance
+local Performance = {
+    fps = 0,
+    lastCheck = os_clock(),
+    samples = {},
+    maxSamples = 50
+}
+
+function Performance:Initialize()
+    print("🚀 Inicializando otimizações de performance...")
+    
+    -- Remove limite de FPS (se disponível)
+    if setfpscap then
+        pcall(function()
+            setfpscap(9999)
+        end)
+    end
+    
+    -- Otimizações de renderização
+    pcall(function()
+        settings().Physics.AllowSleep = true
+        settings().Rendering.QualityLevel = 1
+    end)
+    
+    -- Monitor de FPS
     runService.Heartbeat:Connect(function()
         local now = os_clock()
         local delta = now - self.lastCheck
         self.lastCheck = now
         
-        -- Calcula FPS
-        local currentFPS = 1 / delta
-        table_insert(self.samples, currentFPS)
-        
-        if #self.samples > self.maxSamples then
-            table_remove(self.samples, 1)
-        end
-        
-        -- Média de FPS
-        local totalFPS = 0
-        for _, fps in ipairs(self.samples) do
-            totalFPS = totalFPS + fps
-        end
-        self.fps = totalFPS / #self.samples
-        
-        -- Auto-otimização baseada em performance
-        if self.fps < 30 then
-            self:EmergencyOptimize()
+        if delta > 0 then
+            local currentFPS = 1 / delta
+            table_insert(self.samples, currentFPS)
+            
+            if #self.samples > self.maxSamples then
+                table_remove(self.samples, 1)
+            end
+            
+            -- Calcula FPS médio
+            local totalFPS = 0
+            for _, fps in ipairs(self.samples) do
+                totalFPS = totalFPS + fps
+            end
+            self.fps = totalFPS / #self.samples
         end
     end)
 end
 
-function PerformanceOptimizer:EmergencyOptimize()
-    -- Otimização Emergencial
+function Performance:GetFPS()
+    return math_floor(self.fps)
+end
+
+function Performance:OptimizeWorkspace()
+    local optimized = 0
+    
     for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("ParticleEmitter") or 
-           obj:IsA("Trail") or 
-           obj:IsA("Smoke") or 
-           obj:IsA("Fire") or 
-           obj:IsA("Sparkles") then
-            obj.Enabled = false
-        end
-        
-        if obj:IsA("BasePart") then
-            obj.CastShadow = false
-        end
+        pcall(function()
+            if obj:IsA("ParticleEmitter") or 
+               obj:IsA("Trail") or 
+               obj:IsA("Smoke") or 
+               obj:IsA("Fire") or 
+               obj:IsA("Sparkles") then
+                obj.Enabled = false
+                optimized = optimized + 1
+            end
+            
+            if obj:IsA("BasePart") then
+                obj.CastShadow = false
+                optimized = optimized + 1
+            end
+        end)
     end
     
-    -- Limpa Cache
-    self:CleanupCache()
+    print(string_format("✨ %d objetos otimizados", optimized))
 end
 
-function PerformanceOptimizer:CleanupCache()
-    local now = os_clock()
-    local cleaned = 0
-    
-    for k, v in pairs(SupremeCache._data) do
-        if type(v) == "table" and v.timestamp and (now - v.timestamp) > 60 then
-            SupremeCache._data[k] = nil
-            cleaned = cleaned + 1
-        end
-    end
-    
-    print(string_format("🧹 Cache limpo: %d itens removidos", cleaned))
-end
-
--- Sistema de Proteção Suprema
-local SupremeShield = {
+-- Sistema de Proteção
+local Protection = {
     active = false,
-    dimensions = {},
-    neural = {},
-    quantum = {},
     detections = 0,
-    threats = {}
+    blockedCalls = 0
 }
 
-function SupremeShield:Initialize()
-    self.active = true
-    print("🛡️ Iniciando Proteção Suprema...")
+function Protection:Initialize()
+    print("🛡️ Iniciando sistema de proteção...")
     
-    -- Proteção Multi-Dimensional
-    for i = 1, 10 do
-        self.dimensions[i] = {
-            active = true,
-            shield = math_random(),
-            entropy = math_random(),
-            neural_adaptation = math_random()
-        }
+    if not getrawmetatable or not setreadonly or not newcclosure or not getnamecallmethod then
+        warn("⚠️ Proteção limitada - funções avançadas não disponíveis")
+        return
     end
     
-    -- Hook Quântico Supremo
-    local mt = getrawmetatable(game)
-    setreadonly(mt, false)
+    local success, mt = pcall(getrawmetatable, game)
+    if not success then
+        warn("⚠️ Não foi possível obter metatable")
+        return
+    end
+    
+    local success2 = pcall(setreadonly, mt, false)
+    if not success2 then
+        warn("⚠️ Não foi possível modificar metatable")
+        return
+    end
     
     local oldNamecall = mt.__namecall
+    
     mt.__namecall = newcclosure(function(self, ...)
-        local method = getnamecallmethod()
+        local success, method = pcall(getnamecallmethod)
+        if not success then
+            return oldNamecall(self, ...)
+        end
+        
         local args = {...}
         
-        -- Análise Quântica Suprema
+        -- Análise de chamadas suspeitas
         if method == "FireServer" or method == "InvokeServer" then
-            local quantumData = {
-                method = method,
-                instance = self,
-                args = args,
-                time = os_clock(),
-                dimension = math_random(1, 10),
-                entropy = math_random(),
-                neural_adaptation = math_random()
-            }
+            self.detections = self.detections + 1
             
-            if SupremeShield:AnalyzeQuantum(quantumData) then
-                return wait(9e9)
+            -- Verifica padrões suspeitos
+            local suspicious = false
+            for _, arg in ipairs(args) do
+                if type(arg) == "string" then
+                    local lower = string.lower(arg)
+                    if string.find(lower, "ban") or 
+                       string.find(lower, "kick") or 
+                       string.find(lower, "anticheat") then
+                        suspicious = true
+                        break
+                    end
+                end
+            end
+            
+            if suspicious then
+                self.blockedCalls = self.blockedCalls + 1
+                warn("🚫 Chamada suspeita bloqueada")
+                return wait(9e9) -- Bloqueia indefinidamente
             end
         end
         
         return oldNamecall(self, ...)
     end)
     
-    setreadonly(mt, true)
-    print("✅ Proteção Suprema Ativada!")
+    pcall(setreadonly, mt, true)
+    self.active = true
+    print("✅ Proteção ativada com sucesso!")
 end
 
--- Sistema de Replicação Suprema Unificada
-local SupremeReplicator = {
+function Protection:GetStats()
+    return {
+        active = self.active,
+        detections = self.detections,
+        blocked = self.blockedCalls
+    }
+end
+
+-- Sistema de Monitoramento de Remotes
+local RemoteMonitor = {
     enabled = false,
     remotes = {},
-    quantum = {},
-    neural = {},
-    dimensional = {},
-    stats = {
-        replications = 0,
-        success = 0,
-        entropy = 0,
-        quantum_shifts = 0
-    }
+    totalCalls = 0
 }
 
-function SupremeReplicator:Initialize()
-    print("🌌 Iniciando Replicador Supremo Unificado...")
+function RemoteMonitor:Initialize()
+    print("🌐 Inicializando monitor de remotes...")
     self.enabled = true
     
-    -- Scan Quântico Supremo
+    -- Escaneia remotes existentes
     for _, obj in pairs(game:GetDescendants()) do
         if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
-            local remoteData = {
-                remote = obj,
-                name = obj.Name,
-                path = obj:GetFullName(),
-                calls = 0,
-                args = {},
-                quantum = {
-                    dimension = math_random(1, 10),
-                    entropy = math_random(),
-                    neural_adaptation = math_random()
-                }
-            }
-            table_insert(self.remotes, remoteData)
-            
-            -- Hook Avançado
-            if obj:IsA("RemoteEvent") then
-                local oldFireServer = obj.FireServer
-                obj.FireServer = newcclosure(function(self, ...)
-                    local args = {...}
-                    remoteData.calls = remoteData.calls + 1
-                    
-                    -- Análise Neural
-                    local quantumData = {
-                        args = args,
-                        time = os_clock(),
-                        dimension = remoteData.quantum.dimension,
-                        entropy = math_random(),
-                        neural_adaptation = remoteData.quantum.neural_adaptation
-                    }
-                    
-                    table_insert(remoteData.args, quantumData)
-                    return oldFireServer(self, ...)
-                end)
-            end
+            self:TrackRemote(obj)
         end
     end
     
-    print("✅ Replicador Supremo Inicializado!")
+    -- Monitora novos remotes
+    game.DescendantAdded:Connect(function(obj)
+        if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
+            self:TrackRemote(obj)
+        end
+    end)
 end
 
-function SupremeReplicator:ReplicateSupreme(target)
-    print("🎯 Iniciando Replicação Suprema:", target.Name)
-    
-    -- Captura Suprema
-    local supremeData = {
-        name = target.Name,
-        class = target.ClassName,
-        quantum = {
-            dimension = math_random(1, 10),
-            entropy = math_random(),
-            neural_adaptation = math_random()
-        },
-        properties = {},
-        animations = {},
-        effects = {},
-        neural = {},
-        dimensional = {}
+function RemoteMonitor:TrackRemote(remote)
+    local remoteData = {
+        remote = remote,
+        name = remote.Name,
+        path = remote:GetFullName(),
+        calls = 0,
+        lastCall = 0
     }
     
-    -- Captura Propriedades Supremas
-    pcall(function()
-        supremeData.properties = {
-            CFrame = target.PrimaryPart and target.PrimaryPart.CFrame or target:GetPivot(),
-            Size = target.PrimaryPart and target.PrimaryPart.Size or Vector3.new(1, 1, 1),
-            BrickColor = target.PrimaryPart and target.PrimaryPart.BrickColor or BrickColor.new("Medium stone grey"),
-            Material = target.PrimaryPart and target.PrimaryPart.Material or Enum.Material.Plastic,
-            Transparency = target.PrimaryPart and target.PrimaryPart.Transparency or 0
-        }
-    end)
+    table_insert(self.remotes, remoteData)
     
-    -- Captura Animações Supremas
-    if target:FindFirstChild("Humanoid") and target.Humanoid:FindFirstChild("Animator") then
-        for _, track in pairs(target.Humanoid.Animator:GetPlayingAnimationTracks()) do
-            table_insert(supremeData.animations, {
-                id = track.Animation.AnimationId,
-                speed = track.Speed,
-                weight = track.WeightCurrent,
-                timePosition = track.TimePosition,
-                quantum = {
-                    dimension = math_random(1, 10),
-                    entropy = math_random(),
-                    neural_adaptation = math_random()
-                }
-            })
-        end
-    end
-    
-    -- Captura Efeitos Supremos
-    for _, part in pairs(target:GetDescendants()) do
-        if part:IsA("ParticleEmitter") then
-            table_insert(supremeData.effects, {
-                name = part.Name,
-                properties = {
-                    Color = part.Color,
-                    Size = part.Size,
-                    Speed = part.Speed,
-                    Rate = part.Rate,
-                    Acceleration = part.Acceleration,
-                    Drag = part.Drag,
-                    Lifetime = part.Lifetime,
-                    SpreadAngle = part.SpreadAngle
-                },
-                quantum = {
-                    dimension = math_random(1, 10),
-                    entropy = math_random(),
-                    neural_adaptation = math_random()
-                }
-            })
-        end
-    end
-    
-    -- Armazena no Cache Supremo
-    SupremeCache[target.Name] = supremeData
-    self.stats.replications = self.stats.replications + 1
-    
-    print("✨ Replicação Suprema Completa!")
-    return supremeData
-end
-
-function SupremeReplicator:CreateSupremeReplica(data)
-    print("🔮 Criando Réplica Suprema:", data.name)
-    
-    -- Modelo Base Supremo
-    local model = Instance.new("Model")
-    model.Name = data.name .. "_Supreme"
-    
-    -- Parte Principal Suprema
-    local main = Instance.new("Part")
-    main.CFrame = data.properties.CFrame
-    main.Size = data.properties.Size
-    main.BrickColor = data.properties.BrickColor
-    main.Material = data.properties.Material
-    main.Transparency = data.properties.Transparency
-    main.Anchored = true
-    main.Parent = model
-    
-    -- Animações Supremas
-    if #data.animations > 0 then
-        local humanoid = Instance.new("Humanoid")
-        local animator = Instance.new("Animator")
-        animator.Parent = humanoid
-        humanoid.Parent = model
-        
-        for _, anim in pairs(data.animations) do
-            local animation = Instance.new("Animation")
-            animation.AnimationId = anim.id
-            
-            local track = animator:LoadAnimation(animation)
-            track:Play()
-            track:AdjustSpeed(anim.speed)
-            track:AdjustWeight(anim.weight)
-            track.TimePosition = anim.timePosition
-        end
-    end
-    
-    -- Efeitos Supremos
-    for _, effect in pairs(data.effects) do
-        local emitter = Instance.new("ParticleEmitter")
-        for prop, value in pairs(effect.properties) do
-            emitter[prop] = value
-        end
-        emitter.Parent = main
-    end
-    
-    model.Parent = workspace
-    self.stats.success = self.stats.success + 1
-    
-    print("✅ Réplica Suprema Criada!")
-    return model
-end
-
--- Interface Suprema Unificada
-local SupremeUI = {}
-SupremeUI.__index = SupremeUI
-
-function SupremeUI.new()
-    local self = setmetatable({}, SupremeUI)
-    
-    -- GUI Suprema
-    self.gui = Instance.new("ScreenGui")
-    self.gui.Name = "SupremeUnifiedV10"
-    self.gui.ResetOnSpawn = false
-    self.gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    self.gui.DisplayOrder = 999999999
-    
-    -- Frame Principal Supremo
-    self.mainFrame = Instance.new("Frame")
-    self.mainFrame.Size = UDim2.new(0, 400, 0, 600)
-    self.mainFrame.Position = UDim2.new(0.5, -200, 0.5, -300)
-    self.mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-    self.mainFrame.BorderSizePixel = 0
-    self.mainFrame.Parent = self.gui
-    
--- Continuação da Interface Suprema
-function SupremeUI:InitializeInterface()
-    -- Efeitos Visuais Supremos
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 10)
-    corner.Parent = self.mainFrame
-    
-    -- Título Supremo
-    local titleBar = Instance.new("Frame")
-    titleBar.Size = UDim2.new(1, 0, 0, 40)
-    titleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-    titleBar.BorderSizePixel = 0
-    titleBar.Parent = self.mainFrame
-    
-    local titleCorner = Instance.new("UICorner")
-    titleCorner.CornerRadius = UDim.new(0, 10)
-    titleCorner.Parent = titleBar
-    
-    local titleText = Instance.new("TextLabel")
-    titleText.Size = UDim2.new(1, -20, 1, 0)
-    titleText.Position = UDim2.new(0, 10, 0, 0)
-    titleText.BackgroundTransparency = 1
-    titleText.Text = "Supreme Unified v10"
-    titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
-    titleText.TextSize = 20
-    titleText.Font = Enum.Font.GothamBold
-    titleText.Parent = titleBar
-    
-    -- Container Principal
-    self.container = Instance.new("ScrollingFrame")
-    self.container.Size = UDim2.new(1, -20, 1, -100)
-    self.container.Position = UDim2.new(0, 10, 0, 50)
-    self.container.BackgroundTransparency = 1
-    self.container.ScrollBarThickness = 4
-    self.container.Parent = self.mainFrame
-    
-    -- Layout
-    local listLayout = Instance.new("UIListLayout")
-    listLayout.Padding = UDim.new(0, 10)
-    listLayout.Parent = self.container
-    
-    -- Painel de Estatísticas
-    local statsPanel = Instance.new("Frame")
-    statsPanel.Size = UDim2.new(1, 0, 0, 100)
-    statsPanel.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-    statsPanel.Parent = self.container
-    
-    local statsCorner = Instance.new("UICorner")
-    statsCorner.CornerRadius = UDim.new(0, 8)
-    statsCorner.Parent = statsPanel
-    
-    self.statsLabel = Instance.new("TextLabel")
-    self.statsLabel.Size = UDim2.new(1, -20, 1, -10)
-    self.statsLabel.Position = UDim2.new(0, 10, 0, 5)
-    self.statsLabel.BackgroundTransparency = 1
-    self.statsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    self.statsLabel.TextXAlignment = Enum.TextXAlignment.Left
-    self.statsLabel.TextYAlignment = Enum.TextYAlignment.Top
-    self.statsLabel.TextSize = 14
-    self.statsLabel.Font = Enum.Font.Gotham
-    self.statsLabel.Parent = statsPanel
-    
-    -- Botões de Controle
-    local controlPanel = Instance.new("Frame")
-    controlPanel.Size = UDim2.new(1, 0, 0, 40)
-    controlPanel.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-    controlPanel.Parent = self.container
-    
-    local controlCorner = Instance.new("UICorner")
-    controlCorner.CornerRadius = UDim.new(0, 8)
-    controlCorner.Parent = controlPanel
-    
-    -- Botão de Scan
-    local scanButton = self:CreateButton("🔄 Scan", UDim2.new(0.5, -5, 1, -10), controlPanel)
-    scanButton.MouseButton1Click:Connect(function()
-        self:PerformSupremeScan()
-    end)
-    
-    -- Botão de Otimização
-    local optimizeButton = self:CreateButton("⚡ Otimizar", UDim2.new(0.5, 5, 1, -10), controlPanel)
-    optimizeButton.Position = UDim2.new(0.5, 5, 0, 5)
-    optimizeButton.MouseButton1Click:Connect(function()
-        PerformanceOptimizer:EmergencyOptimize()
-    end)
-    
-    -- Lista de Targets
-    self.targetList = Instance.new("Frame")
-    self.targetList.Size = UDim2.new(1, 0, 1, -160)
-    self.targetList.BackgroundTransparency = 1
-    self.targetList.Parent = self.container
-    
-    local targetLayout = Instance.new("UIListLayout")
-    targetLayout.Padding = UDim.new(0, 5)
-    targetLayout.Parent = self.targetList
-    
-    -- Inicializa Updates
-    self:StartUpdates()
-end
-
-function SupremeUI:CreateButton(text, size, parent)
-    local button = Instance.new("TextButton")
-    button.Size = size
-    button.Position = UDim2.new(0, 5, 0, 5)
-    button.BackgroundColor3 = Color3.fromRGB(60, 60, 255)
-    button.Text = text
-    button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    button.TextSize = 14
-    button.Font = Enum.Font.GothamBold
-    button.Parent = parent
-    
-    local buttonCorner = Instance.new("UICorner")
-    buttonCorner.CornerRadius = UDim.new(0, 6)
-    buttonCorner.Parent = button
-    
-    -- Efeitos
-    button.MouseEnter:Connect(function()
-        tweenService:Create(button, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(80, 80, 255)}):Play()
-    end)
-    
-    button.MouseLeave:Connect(function()
-        tweenService:Create(button, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(60, 60, 255)}):Play()
-    end)
-    
-    return button
-end
-
-function SupremeUI:StartUpdates()
-    -- Update de Estatísticas
-    task_spawn(function()
-        while task_wait(1) do
-            self.statsLabel.Text = string_format([[
-📊 Estatísticas Supremas:
-FPS: %.1f
-Replicações: %d
-Cache Hits: %d
-Dimensões: %d
-Entropy: %.2f
-            ]], 
-            PerformanceOptimizer.fps,
-            SupremeReplicator.stats.replications,
-            SupremeCache.stats.hits,
-            #SupremeShield.dimensions,
-            math_random()
-            )
-        end
-    end)
-end
-
-function SupremeUI:PerformSupremeScan()
-    print("🔍 Iniciando Scan Supremo...")
-    
-    -- Limpa lista atual
-    for _, child in pairs(self.targetList:GetChildren()) do
-        if child:IsA("Frame") then
-            child:Destroy()
-        end
-    end
-    
-    -- Scan Supremo
-    local count = 0
-    for _, obj in pairs(workspace:GetDescendants()) do
-        if obj:IsA("Model") and 
-           (obj.Name:lower():find("brainrot") or 
-            obj.Name:lower():find("pet") or 
-            obj.Name:lower():find("creature")) then
-            
-            self:CreateTargetCard(obj)
-            count = count + 1
-        end
-    end
-    
-    print("✅ Scan Supremo Completo! Encontrados:", count)
-end
-
-function SupremeUI:CreateTargetCard(target)
-    local card = Instance.new("Frame")
-    card.Size = UDim2.new(1, 0, 0, 60)
-    card.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-    card.Parent = self.targetList
-    
-    local cardCorner = Instance.new("UICorner")
-    cardCorner.CornerRadius = UDim.new(0, 8)
-    cardCorner.Parent = card
-    
-    -- Info
-    local infoLabel = Instance.new("TextLabel")
-    infoLabel.Size = UDim2.new(1, -150, 1, -10)
-    infoLabel.Position = UDim2.new(0, 10, 0, 5)
-    infoLabel.BackgroundTransparency = 1
-    infoLabel.Text = target.Name
-    infoLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    infoLabel.TextXAlignment = Enum.TextXAlignment.Left
-    infoLabel.TextSize = 14
-    infoLabel.Font = Enum.Font.Gotham
-    infoLabel.Parent = card
-    
-    -- Botão de Replicação
-    local replicateButton = Instance.new("TextButton")
-    replicateButton.Size = UDim2.new(0, 100, 0, 30)
-    replicateButton.Position = UDim2.new(1, -110, 0.5, -15)
-    replicateButton.BackgroundColor3 = Color3.fromRGB(60, 255, 60)
-    replicateButton.Text = "Replicar"
-    replicateButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    replicateButton.TextSize = 14
-    replicateButton.Font = Enum.Font.GothamBold
-    replicateButton.Parent = card
-    
-    local buttonCorner = Instance.new("UICorner")
-    buttonCorner.CornerRadius = UDim.new(0, 6)
-    buttonCorner.Parent = replicateButton
-    
-    -- Evento de Replicação
-    replicateButton.MouseButton1Click:Connect(function()
-        local data = SupremeReplicator:ReplicateSupreme(target)
-        SupremeReplicator:CreateSupremeReplica(data)
-    end)
-end
-
--- Inicialização Suprema Unificada
-local function InitializeSupremeSystem()
-    print("🚀 Iniciando Sistema Supremo Unificado v10...")
-    
-    -- Inicializa todos os sistemas
-    PerformanceOptimizer:Initialize()
-    SupremeShield:Initialize()
-    SupremeReplicator:Initialize()
-    
-    -- Cria e inicializa interface
-    local UI = SupremeUI.new()
-    UI:InitializeInterface()
-    
-    -- Parent com proteção máxima
-    if syn then
-        syn.protect_gui(UI.gui)
-        UI.gui.Parent = coreGui
-    else
-        pcall(function()
-            UI.gui.Parent = coreGui
+    if remote:IsA("RemoteEvent") then
+        local oldFireServer = remote.FireServer
+        remote.FireServer = newcclosure(function(self, ...)
+            remoteData.calls = remoteData.calls + 1
+            remoteData.lastCall = os_clock()
+            RemoteMonitor.totalCalls = RemoteMonitor.totalCalls + 1
+            return oldFireServer(self, ...)
         end)
-        if not UI.gui.Parent then
-            UI.gui.Parent = players.LocalPlayer:WaitForChild("PlayerGui")
-        end
     end
-    
-    -- Scan inicial
-    UI:PerformSupremeScan()
-    
-    print("✨ Sistema Supremo Unificado Inicializado com Sucesso!")
-    return UI
 end
 
--- Execução Final
-local SupremeSystem = InitializeSupremeSystem()
+function RemoteMonitor:GetStats()
+    return {
+        totalRemotes = #self.remotes,
+        totalCalls = self.totalCalls,
+        enabled = self.enabled
+    }
+end
 
--- Cria loadstring otimizado
-local loadstringSupreme = [[
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/math741/supreme_unified/main/supreme_v10.lua"))()
-]]
+-- Interface de Status
+local StatusGUI = {
+    gui = nil,
+    frame = nil,
+    labels = {}
+}
 
-return SupremeSystem
+function StatusGUI:Create()
+    -- Cria GUI simples para mostrar status
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "StatusGUI"
+    screenGui.Parent = players.LocalPlayer:WaitForChild("PlayerGui")
+    
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 300, 0, 200)
+    frame.Position = UDim2.new(0, 10, 0, 10)
+    frame.BackgroundColor3 = Color3.new(0, 0, 0)
+    frame.BackgroundTransparency = 0.3
+    frame.BorderSizePixel = 2
+    frame.BorderColor3 = Color3.new(0, 1, 0)
+    frame.Parent = screenGui
+    
+    -- Título
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, 0, 0, 30)
+    title.BackgroundTransparency = 1
+    title.Text = "🚀 Script Status"
+    title.TextColor3 = Color3.new(0, 1, 0)
+    title.TextScaled = true
+    title.Font = Enum.Font.Code
+    title.Parent = frame
+    
+    -- Labels de status
+    local yPos = 35
+    for _, text in ipairs({"FPS: 0", "Cache: 0 hits", "Protection: ❌", "Remotes: 0"}) do
+        local label = Instance.new("TextLabel")
+        label.Size = UDim2.new(1, -10, 0, 25)
+        label.Position = UDim2.new(0, 5, 0, yPos)
+        label.BackgroundTransparency = 1
+        label.Text = text
+        label.TextColor3 = Color3.new(1, 1, 1)
+        label.TextScaled = true
+        label.Font = Enum.Font.Code
+        label.TextXAlignment = Enum.TextXAlignment.Left
+        label.Parent = frame
+        
+        table_insert(self.labels, label)
+        yPos = yPos + 30
+    end
+    
+    self.gui = screenGui
+    self.frame = frame
+end
+
+function StatusGUI:Update()
+    if not self.labels or #self.labels == 0 then return end
+    
+    local protectionStats = Protection:GetStats()
+    local remoteStats = RemoteMonitor:GetStats()
+    
+    self.labels[1].Text = string_format("FPS: %d", Performance:GetFPS())
+    self.labels[2].Text = string_format("Cache: %d hits/%d miss", Cache.stats.hits, Cache.stats.misses)
+    self.labels[3].Text = string_format("Protection: %s (%d blocked)", 
+        protectionStats.active and "✅" or "❌", protectionStats.blocked)
+    self.labels[4].Text = string_format("Remotes: %d tracked", remoteStats.totalRemotes)
+end
+
+-- Inicialização Principal
+local function Initialize()
+    print("=" .. string.rep("=", 50) .. "=")
+    print("🚀 Iniciando Script Otimizado...")
+    print("=" .. string.rep("=", 50) .. "=")
+    
+    -- Inicializa sistemas
+    Performance:Initialize()
+    Protection:Initialize()
+    RemoteMonitor:Initialize()
+    StatusGUI:Create()
+    
+    -- Loop de atualização
+    task_spawn(function()
+        while getgenv().ScriptActive do
+            StatusGUI:Update()
+            Cache:Clean()
+            task_wait(1)
+        end
+    end)
+    
+    -- Otimização automática de performance
+    task_spawn(function()
+        while getgenv().ScriptActive do
+            task_wait(10)
+            if Performance:GetFPS() < 30 then
+                print("⚡ Performance baixa detectada, otimizando...")
+                Performance:OptimizeWorkspace()
+            end
+        end
+    end)
+    
+    print("✅ Script inicializado com sucesso!")
+    print("📊 GUI de status criada no canto superior esquerdo")
+end
+
+-- Executa inicialização
+Initialize()
+
+-- Cleanup ao sair
+game:BindToClose(function()
+    getgenv().ScriptActive = false
+    if StatusGUI.gui then
+        StatusGUI.gui:Destroy()
+    end
+    print("👋 Script finalizado!")
+end)
