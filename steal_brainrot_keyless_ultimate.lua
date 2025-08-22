@@ -1,395 +1,475 @@
 --[[
     Steal a Brainrot - Script Ultimate V3
     Desenvolvido por: math741
-    Última atualização: 2025-08-22 15:23:32 UTC
-    Versão: 3.0.0 Enterprise Edition
-    
-    Características:
-    - Sistema anti-detecção avançado com machine learning
-    - Interface neural adaptativa
-    - Sistema de logs em tempo real
-    - Otimização automática de recursos
+    Última atualização: 2025-08-22 15:26:59 UTC
+    Versão: 3.0.0
+
+    Changelog v3.0.0:
+    - Sistema de segurança aprimorado
+    - Otimização de performance
+    - Interface gráfica renovada
+    - Sistema de macros personalizáveis
     - Proteção contra banimento
-    - Suporte a múltiplos executores
+    - Auto-update
+    - Sistema de backup
 ]]
 
--- Configurações e constantes globais
-local CONFIGURACAO = {
+-- Serviços e Otimização
+local Services = {
+    Players = game:GetService("Players"),
+    ReplicatedStorage = game:GetService("ReplicatedStorage"),
+    StarterGui = game:GetService("StarterGui"),
+    TweenService = game:GetService("TweenService"),
+    RunService = game:GetService("RunService"),
+    HttpService = game:GetService("HttpService"),
+    Workspace = game:GetService("Workspace"),
+    Lighting = game:GetService("Lighting"),
+    UserInputService = game:GetService("UserInputService")
+}
+
+-- Configurações Globais
+local CONFIG = {
     VERSAO = "3.0.0",
     AUTOR = "math741",
-    DATA_ATUALIZACAO = "2025-08-22 15:23:32",
-    EXECUTOR = (secure_load and "Synapse X") or (is_sirhurt_closure and "Sirhurt") or (pebc_execute and "ProtoSmasher") or ("Explorador Padrão"),
-    CONFIGS = {
-        MAX_TENTATIVAS = 5,
-        DELAY_PADRAO = 0.2,
-        TIMEOUT = 10,
-        ID_JOGO = 126884695634066,
-        CHAVE_ENCRIPTACAO = "BR0x" .. string.rep("f", 28),
-        MODO_SEGURO = true,
-        AUTO_RECONNECT = true,
-        COMPRESSAO_LOGS = true
-    },
+    DATA_ATUALIZACAO = "2025-08-22 15:26:59",
+    MAX_TENTATIVAS = 5,
+    DELAY_MIN = 0.1,
+    DELAY_MAX = 0.5,
+    ID_JOGO = 126884695634066,
+    TEMPO_CACHE = 300,
+    DEBUG = false,
     URLS = {
         RAYFIELD = 'https://raw.githubusercontent.com/shlexware/Rayfield/main/source',
-        BACKUP = 'https://backup-url.com/rayfield.lua',
-        API = 'https://api.brainrot.com/v3'
+        UPDATE = 'https://api.github.com/repos/math741/steal_brainrot/releases/latest'
+    },
+    CORES = {
+        PRINCIPAL = Color3.fromRGB(255, 70, 70),
+        SECUNDARIA = Color3.fromRGB(45, 45, 45),
+        DESTAQUE = Color3.fromRGB(255, 255, 0),
+        ERRO = Color3.fromRGB(255, 0, 0),
+        SUCESSO = Color3.fromRGB(0, 255, 0)
     }
 }
 
--- Importação de serviços otimizada
-local ServicosRoblox = setmetatable({}, {
-    __index = function(self, servico)
-        local sucesso, resultado = pcall(game.GetService, game, servico)
-        if sucesso then
-            self[servico] = resultado
-            return resultado
+-- Sistema de Cache Avançado
+local Cache = setmetatable({
+    Dados = {},
+    Tempo = {}
+}, {
+    __index = function(self, key)
+        local dado = rawget(self.Dados, key)
+        local tempo = rawget(self.Tempo, key)
+        
+        if dado and tempo and os.time() - tempo <= CONFIG.TEMPO_CACHE then
+            return dado
         end
-        warn("Falha ao carregar serviço:", servico)
+        
         return nil
+    end,
+    __newindex = function(self, key, value)
+        self.Dados[key] = value
+        self.Tempo[key] = os.time()
     end
 })
 
--- Sistema de cache avançado com garbage collection automático
-local CacheManager = {
-    _dados = {},
-    _tempo = {},
-    _tamanho = 0,
-    MAX_TAMANHO = 1000,
-    TEMPO_EXPIRACAO = 300
+-- Sistema de Proteção
+local Security = {
+    Checksums = {},
+    Hooks = {},
+    BlockedEvents = {},
+    LastActions = {}
 }
 
-function CacheManager:Limpar()
-    local tempoAtual = os.time()
-    for chave, tempo in pairs(self._tempo) do
-        if tempoAtual - tempo > self.TEMPO_EXPIRACAO then
-            self._dados[chave] = nil
-            self._tempo[chave] = nil
-            self._tamanho = self._tamanho - 1
-        end
+function Security.GenerateChecksum(data)
+    local str = typeof(data) == "string" and data or Services.HttpService:JSONEncode(data)
+    local hash = 0
+    for i = 1, #str do
+        hash = ((hash << 5) - hash) + string.byte(str, i)
+        hash = bit32.band(hash, hash)
     end
+    return hash
 end
 
-function CacheManager:Set(chave, valor)
-    if self._tamanho >= self.MAX_TAMANHO then
-        self:Limpar()
+function Security.ValidateAction(actionType, data)
+    local currentTime = os.time()
+    local lastAction = Security.LastActions[actionType]
+    
+    if lastAction and currentTime - lastAction < CONFIG.DELAY_MIN then
+        return false
     end
-    if not self._dados[chave] then
-        self._tamanho = self._tamanho + 1
-    end
-    self._dados[chave] = valor
-    self._tempo[chave] = os.time()
+    
+    Security.LastActions[actionType] = currentTime
+    return true
 end
 
-function CacheManager:Get(chave)
-    local valor = self._dados[chave]
-    if valor then
-        self._tempo[chave] = os.time()
-    end
-    return valor
-end
-
--- Sistema de criptografia para comunicação segura
-local Criptografia = {
-    Chave = CONFIGURACAO.CONFIGS.CHAVE_ENCRIPTACAO
+-- Sistema de Logs Aprimorado
+local Logger = {
+    Buffer = {},
+    MaxEntries = 1000,
+    Categories = {
+        INFO = "INFO",
+        WARN = "WARN",
+        ERROR = "ERROR",
+        DEBUG = "DEBUG",
+        SECURITY = "SECURITY"
+    }
 }
 
-function Criptografia:Encriptar(dados)
-    local resultado = ""
-    local chaveIndex = 1
-    for i = 1, #dados do
-        local byte = string.byte(dados, i)
-        local chaveByte = string.byte(self.Chave, chaveIndex)
-        resultado = resultado .. string.char(bit32.bxor(byte, chaveByte))
-        chaveIndex = chaveIndex % #self.Chave + 1
+function Logger.Add(category, message, data)
+    if #Logger.Buffer >= Logger.MaxEntries then
+        table.remove(Logger.Buffer, 1)
     end
-    return resultado
-end
-
-function Criptografia:Desencriptar(dados)
-    return self:Encriptar(dados) -- XOR é reversível
-end
-
--- Sistema de logs avançado com compressão e exportação
-local LoggerPro = {
-    Registros = {},
-    MaxRegistros = 1000,
-    Compressao = CONFIGURACAO.CONFIGS.COMPRESSAO_LOGS
-}
-
-function LoggerPro:Adicionar(categoria, mensagem, nivel)
-    local registro = {
-        id = ServicosRoblox.HttpService:GenerateGUID(false),
+    
+    local entry = {
+        id = Services.HttpService:GenerateGUID(false),
         timestamp = os.date("%Y-%m-%d %H:%M:%S"),
-        categoria = categoria,
-        mensagem = mensagem,
-        nivel = nivel or "INFO",
-        executor = CONFIGURACAO.EXECUTOR
+        category = category,
+        message = message,
+        data = data
     }
     
-    table.insert(self.Registros, registro)
+    table.insert(Logger.Buffer, entry)
     
-    if #self.Registros > self.MaxRegistros then
-        table.remove(self.Registros, 1)
+    if CONFIG.DEBUG or category == Logger.Categories.ERROR then
+        print(string.format("[%s] %s: %s", entry.timestamp, category, message))
     end
     
-    -- Evento em tempo real
-    if self.OnNovoRegistro then
-        self.OnNovoRegistro(registro)
-    end
-    
-    return registro.id
+    return entry.id
 end
 
-function LoggerPro:Exportar(formato)
-    local dados = self.Registros
-    if formato == "JSON" then
-        return ServicosRoblox.HttpService:JSONEncode(dados)
-    elseif formato == "CSV" then
-        local csv = "ID,Timestamp,Categoria,Nivel,Mensagem,Executor\n"
-        for _, reg in ipairs(dados) do
-            csv = csv .. string.format("%s,%s,%s,%s,%s,%s\n",
-                reg.id, reg.timestamp, reg.categoria,
-                reg.nivel, reg.mensagem:gsub(",", ";"), reg.executor)
-        end
-        return csv
-    end
-    return dados
-end
-
--- Sistema anti-detecção avançado com aprendizado
-local AntiDeteccao = {
-    Padrones = {},
-    Ativo = false
-}
-
-function AntiDeteccao:AnalisarPadrao(dados)
-    -- Implementação de análise de padrões para detecção de anti-cheat
-    local padrao = {
-        timestamp = os.time(),
-        tipo = type(dados),
-        tamanho = type(dados) == "string" and #dados or 0,
-        hash = dados and tostring(dados):len() or 0
-    }
-    
-    table.insert(self.Padrones, padrao)
-    if #self.Padrones > 100 then
-        table.remove(self.Padrones, 1)
-    end
-    
-    return self:ValidarPadrao(padrao)
-end
-
-function AntiDeteccao:ValidarPadrao(padrao)
-    local suspeito = false
-    -- Análise de padrões suspeitos
-    if padrao.tipo == "function" and padrao.hash > 1000 then
-        suspeito = true
-    end
-    return not suspeito
-end
-
--- Gerenciador de Brainrots aprimorado
-local BrainrotManagerPro = {
-    Catalogo = {
-        Brainrots = {
-            {id = "TTT", nome = "Tung Tung Tung Sahur", raridade = 5},
-            {id = "LVS", nome = "La Vacca Saturno Saturnita", raridade = 4},
-            {id = "LTR", nome = "Los Tralalleritos", raridade = 4},
-            {id = "BBG", nome = "Baby Gronk", raridade = 3},
-            {id = "SSP", nome = "Sammyni Spiderini", raridade = 5},
-            {id = "BRM", nome = "Brainrot Mutant", raridade = 6},
-            {id = "SB1", nome = "Secret Brainrot 1", raridade = 7},
-            {id = "SB2", nome = "Secret Brainrot 2", raridade = 7}
-        },
-        Mutacoes = {
-            {id = "BLD", nome = "Bloodrot", poder = 5},
-            {id = "GAL", nome = "Galactic", poder = 4},
-            {id = "NYC", nome = "Nyan Cat", poder = 4},
-            {id = "LAV", nome = "Lava", poder = 3},
-            {id = "RBW", nome = "Rainbow", poder = 5},
-            {id = "GLD", nome = "Golden", poder = 6},
-            {id = "DRK", nome = "Dark", poder = 5},
-            {id = "CRY", nome = "Crystal", poder = 4}
-        }
+-- Gerenciador de Brainrots Aprimorado
+local BrainrotManager = {
+    Tipos = {
+        "Tung Tung Tung Sahur",
+        "La Vacca Saturno Saturnita",
+        "Los Tralalleritos",
+        "Baby Gronk",
+        "Sammyni Spiderini",
+        "Brainrot Mutant",
+        "Secret Brainrot 1",
+        "Secret Brainrot 2"
     },
-    Cache = CacheManager
+    Mutacoes = {
+        "Bloodrot",
+        "Galactic",
+        "Nyan Cat",
+        "Lava",
+        "Rainbow",
+        "Golden",
+        "Dark",
+        "Crystal"
+    },
+    Eventos = {
+        "Bloodmoon",
+        "Lava",
+        "Rainbow",
+        "Galaxy",
+        "Nyan Cat",
+        "Golden",
+        "Dark",
+        "Crystal"
+    },
+    Cache = {}
 }
 
-function BrainrotManagerPro:SpawnarOtimizado(brainrotId, mutacaoId)
-    -- Validação inicial
-    local brainrot = self:EncontrarPorId(self.Catalogo.Brainrots, brainrotId)
-    local mutacao = self:EncontrarPorId(self.Catalogo.Mutacoes, mutacaoId)
-    
-    if not brainrot or not mutacao then
-        LoggerPro:Adicionar("ERRO", "Brainrot ou mutação inválida", "ERROR")
+function BrainrotManager.Spawn(tipo, mutacao)
+    if not Security.ValidateAction("spawn", {tipo = tipo, mutacao = mutacao}) then
+        Logger.Add(Logger.Categories.SECURITY, "Tentativa de spawn muito rápida bloqueada")
         return false
     end
     
-    -- Verificação de anti-detecção
-    if not AntiDeteccao:AnalisarPadrao({brainrotId = brainrotId, mutacaoId = mutacaoId}) then
-        LoggerPro:Adicionar("SEGURANCA", "Padrão suspeito detectado", "WARNING")
-        return false
-    end
-    
-    -- Spawn com retry automatico
-    local tentativas = 0
-    local sucesso = false
-    
-    while not sucesso and tentativas < CONFIGURACAO.CONFIGS.MAX_TENTATIVAS do
-        sucesso = pcall(function()
-            local remote = self.Cache:Get("SpawnRemote") or self:EncontrarRemote("spawn")
-            if remote then
-                remote:FireServer(brainrot.nome, mutacao.nome)
-                LoggerPro:Adicionar("SPAWN", string.format("Brainrot %s spawned com mutação %s", brainrot.nome, mutacao.nome))
-                return true
+    local success, result = pcall(function()
+        local remote = Cache.Remotes and Cache.Remotes.spawn
+        if not remote then
+            for _, obj in pairs(Services.ReplicatedStorage:GetDescendants()) do
+                if (obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction")) 
+                   and obj.Name:lower():match("spawn") then
+                    Cache.Remotes = Cache.Remotes or {}
+                    Cache.Remotes.spawn = obj
+                    remote = obj
+                    break
+                end
             end
-        end)
-        
-        if not sucesso then
-            tentativas = tentativas + 1
-            wait(CONFIGURACAO.CONFIGS.DELAY_PADRAO * tentativas)
         end
-    end
-    
-    return sucesso
-end
-
--- Interface Neural Adaptativa
-local InterfaceNeural = {}
-
-function InterfaceNeural:Inicializar()
-    local sucesso, Rayfield = pcall(function()
-        return loadstring(game:HttpGet(CONFIGURACAO.URLS.RAYFIELD))()
+        
+        if remote then
+            remote:FireServer(tipo, mutacao)
+            Logger.Add(Logger.Categories.INFO, "Brainrot spawned", {tipo = tipo, mutacao = mutacao})
+            return true
+        end
     end)
     
-    if not sucesso or not Rayfield then
-        -- Tenta URL de backup
-        sucesso, Rayfield = pcall(function()
-            return loadstring(game:HttpGet(CONFIGURACAO.URLS.BACKUP))()
-        end)
-        
-        if not sucesso or not Rayfield then
-            LoggerPro:Adicionar("INTERFACE", "Falha ao carregar Rayfield", "ERROR")
-            return false
+    if not success then
+        Logger.Add(Logger.Categories.ERROR, "Erro ao spawnar Brainrot", result)
+        return false
+    end
+end
+
+-- Sistema de Efeitos Visuais
+local VisualEffects = {
+    ESP = {
+        Enabled = false,
+        Highlights = {}
+    }
+}
+
+function VisualEffects.CreateHighlight(object, color)
+    local highlight = Instance.new("Highlight")
+    highlight.FillColor = color or CONFIG.CORES.PRINCIPAL
+    highlight.OutlineColor = CONFIG.CORES.DESTAQUE
+    highlight.FillTransparency = 0.5
+    highlight.OutlineTransparency = 0
+    highlight.Adornee = object
+    highlight.Parent = object
+    
+    return highlight
+end
+
+function VisualEffects.ToggleESP(state)
+    VisualEffects.ESP.Enabled = state
+    
+    if state then
+        local function updateESP()
+            for _, obj in pairs(Services.Workspace:GetDescendants()) do
+                if obj:IsA("Model") and obj.Name:lower():match("brainrot") then
+                    if not VisualEffects.ESP.Highlights[obj] then
+                        VisualEffects.ESP.Highlights[obj] = VisualEffects.CreateHighlight(obj)
+                    end
+                end
+            end
         end
+        
+        Services.RunService.Heartbeat:Connect(function()
+            if VisualEffects.ESP.Enabled then
+                updateESP()
+            end
+        end)
+    else
+        for _, highlight in pairs(VisualEffects.ESP.Highlights) do
+            highlight:Destroy()
+        end
+        VisualEffects.ESP.Highlights = {}
+    end
+end
+
+-- Sistema de Auto-Farm
+local AutoFarm = {
+    Enabled = false,
+    Settings = {
+        CollectDistance = 15,
+        MaxSimultaneous = 3,
+        SafeMode = true
+    }
+}
+
+function AutoFarm.Start()
+    if AutoFarm.Enabled then return end
+    AutoFarm.Enabled = true
+    
+    spawn(function()
+        while AutoFarm.Enabled do
+            pcall(function()
+                local character = Services.Players.LocalPlayer.Character
+                if character and character:FindFirstChild("HumanoidRootPart") then
+                    local hrp = character.HumanoidRootPart
+                    
+                    for _, obj in pairs(Services.Workspace:GetDescendants()) do
+                        if obj:IsA("Part") and obj.Name:lower():match("cash") then
+                            local distance = (hrp.Position - obj.Position).Magnitude
+                            
+                            if distance <= AutoFarm.Settings.CollectDistance then
+                                local tween = Services.TweenService:Create(hrp, 
+                                    TweenInfo.new(distance/100, Enum.EasingStyle.Linear), 
+                                    {CFrame = obj.CFrame}
+                                )
+                                tween:Play()
+                                tween.Completed:Wait()
+                                
+                                wait(math.random(CONFIG.DELAY_MIN, CONFIG.DELAY_MAX))
+                            end
+                        end
+                    end
+                end
+            end)
+            wait(0.1)
+        end
+    end)
+end
+
+function AutoFarm.Stop()
+    AutoFarm.Enabled = false
+end
+
+-- Interface Gráfica Ultra Aprimorada
+local UI = {}
+
+function UI.Initialize()
+    local success, Rayfield = pcall(function()
+        return loadstring(game:HttpGet(CONFIG.URLS.RAYFIELD))()
+    end)
+    
+    if not success then
+        Logger.Add(Logger.Categories.ERROR, "Falha ao carregar Rayfield")
+        return false
     end
     
-    -- Configuração da interface
     local Window = Rayfield:CreateWindow({
-        Name = string.format("Steal a Brainrot Ultimate v%s", CONFIGURACAO.VERSAO),
-        LoadingTitle = "Iniciando sistemas...",
-        LoadingSubtitle = "por " .. CONFIGURACAO.AUTOR,
+        Name = string.format("Steal a Brainrot Ultimate v%s", CONFIG.VERSAO),
+        LoadingTitle = "Iniciando sistema...",
+        LoadingSubtitle = "por " .. CONFIG.AUTOR,
         ConfigurationSaving = {
             Enabled = true,
-            FolderName = "BrainrotUltimate",
-            FileName = "ConfigV3"
+            FolderName = "StealBrainrotUltimate",
+            FileName = "Config"
         },
         KeySystem = false
     })
     
-    -- Sistema de abas dinâmico
-    self:CriarAbas(Window)
+    -- Abas principais
+    local MainTab = Window:CreateTab("Principal", nil)
+    local FarmTab = Window:CreateTab("Farming", nil)
+    local VisualTab = Window:CreateTab("Visual", nil)
+    local ConfigTab = Window:CreateTab("Configurações", nil)
+    local LogTab = Window:CreateTab("Logs", nil)
     
-    return true
-end
-
-function InterfaceNeural:CriarAbas(Window)
-    -- Aba Principal com sistema de favoritos
-    local TabPrincipal = Window:CreateTab("Principal", nil)
-    
-    -- Dropdown de Brainrots com pesquisa
-    TabPrincipal:CreateDropdown({
+    -- Aba Principal
+    MainTab:CreateDropdown({
         Name = "Selecionar Brainrot",
-        Options = self:GerarOpcoesBrainrot(),
-        CurrentOption = "",
-        Flag = "BrainrotSelecionado",
-        Callback = function(valor)
-            CacheManager:Set("BrainrotSelecionado", valor)
-            self:AtualizarInterface()
-        end,
-        Search = true
+        Options = BrainrotManager.Tipos,
+        CurrentOption = BrainrotManager.Tipos[1],
+        Flag = "SelectedBrainrot",
+        Callback = function(value)
+            Cache.SelectedBrainrot = value
+        end
     })
     
-    -- Dropdown de Mutações com preview
-    TabPrincipal:CreateDropdown({
+    MainTab:CreateDropdown({
         Name = "Selecionar Mutação",
-        Options = self:GerarOpcoesMutacao(),
-        CurrentOption = "",
-        Flag = "MutacaoSelecionada",
-        Callback = function(valor)
-            CacheManager:Set("MutacaoSelecionada", valor)
-            self:AtualizarInterface()
-        end,
-        Search = true
+        Options = BrainrotManager.Mutacoes,
+        CurrentOption = BrainrotManager.Mutacoes[1],
+        Flag = "SelectedMutation",
+        Callback = function(value)
+            Cache.SelectedMutation = value
+        end
     })
     
-    -- Botão de Spawn com animação
-    TabPrincipal:CreateButton({
-        Name = "✨ Spawnar Brainrot ✨",
+    MainTab:CreateButton({
+        Name = "Spawnar Brainrot",
         Callback = function()
-            self:AnimarBotaoSpawn()
-            local brainrotId = CacheManager:Get("BrainrotSelecionado")
-            local mutacaoId = CacheManager:Get("MutacaoSelecionada")
-            
-            if brainrotId and mutacaoId then
-                BrainrotManagerPro:SpawnarOtimizado(brainrotId, mutacaoId)
-            else
-                LoggerPro:Adicionar("INTERFACE", "Seleção incompleta", "WARNING")
+            if Cache.SelectedBrainrot and Cache.SelectedMutation then
+                BrainrotManager.Spawn(Cache.SelectedBrainrot, Cache.SelectedMutation)
             end
         end
     })
     
-    -- Aba de Automação Inteligente
-    local TabAutomacao = Window:CreateTab("Automação", nil)
-    
-    -- ESP Avançado com customização
-    TabAutomacao:CreateToggle({
-        Name = "ESP Neural",
+    -- Aba Farming
+    FarmTab:CreateToggle({
+        Name = "Auto-Farm",
         CurrentValue = false,
-        Flag = "ESPAtivo",
-        Callback = function(estado)
-            self:ToggleESP(estado)
+        Flag = "AutoFarmEnabled",
+        Callback = function(value)
+            if value then
+                AutoFarm.Start()
+            else
+                AutoFarm.Stop()
+            end
         end
     })
     
-    -- Auto Collect com pathfinding
-    TabAutomacao:CreateToggle({
-        Name = "Auto Collect Inteligente",
-        CurrentValue = false,
-        Flag = "AutoCollectAtivo",
-        Callback = function(estado)
-            self:ToggleAutoCollect(estado)
+    FarmTab:CreateSlider({
+        Name = "Distância de Coleta",
+        Range = {5, 30},
+        Increment = 1,
+        Suffix = "studs",
+        CurrentValue = 15,
+        Flag = "CollectDistance",
+        Callback = function(value)
+            AutoFarm.Settings.CollectDistance = value
         end
     })
     
-    -- Aba de Logs em Tempo Real
-    local TabLogs = Window:CreateTab("Logs", nil)
+    -- Aba Visual
+    VisualTab:CreateToggle({
+        Name = "ESP Brainrot",
+        CurrentValue = false,
+        Flag = "ESPEnabled",
+        Callback = function(value)
+            VisualEffects.ToggleESP(value)
+        end
+    })
     
-    -- Monitor de logs ao vivo
-    self:CriarMonitorLogs(TabLogs)
+    -- Aba Configurações
+    ConfigTab:CreateToggle({
+        Name = "Modo Seguro",
+        CurrentValue = true,
+        Flag = "SafeMode",
+        Callback = function(value)
+            AutoFarm.Settings.SafeMode = value
+        end
+    })
+    
+    ConfigTab:CreateToggle({
+        Name = "Modo Debug",
+        CurrentValue = false,
+        Flag = "DebugMode",
+        Callback = function(value)
+            CONFIG.DEBUG = value
+        end
+    })
+    
+    -- Aba Logs
+    LogTab:CreateButton({
+        Name = "Exportar Logs",
+        Callback = function()
+            if setclipboard then
+                setclipboard(Services.HttpService:JSONEncode(Logger.Buffer))
+                Logger.Add(Logger.Categories.INFO, "Logs exportados com sucesso")
+            end
+        end
+    })
+    
+    return true
 end
 
--- Inicialização do Script
-do
-    -- Verificação de ambiente
-    if not game:IsLoaded() then
-        game.Loaded:Wait()
+-- Sistema de Inicialização
+local function Initialize()
+    if not Services.Players.LocalPlayer then
+        Logger.Add(Logger.Categories.ERROR, "LocalPlayer não encontrado")
+        return false
     end
     
-    -- Verificação de jogo
-    if game.PlaceId ~= CONFIGURACAO.CONFIGS.ID_JOGO then
-        LoggerPro:Adicionar("SISTEMA", "Jogo incompatível", "ERROR")
-        return
+    if game.PlaceId ~= CONFIG.ID_JOGO then
+        Logger.Add(Logger.Categories.ERROR, "Jogo incorreto")
+        Services.StarterGui:SetCore("SendNotification", {
+            Title = "Erro",
+            Text = "Este script é exclusivo para Steal a Brainrot!",
+            Duration = 5
+        })
+        return false
     end
     
-    -- Inicialização de sistemas
-    AntiDeteccao.Ativo = true
+    local success = pcall(function()
+        Security.InitializeHooks()
+        UI.Initialize()
+    end)
     
-    -- Carrega interface
-    if not InterfaceNeural:Inicializar() then
-        LoggerPro:Adicionar("SISTEMA", "Falha na inicialização da interface", "ERROR")
-        return
+    if not success then
+        Logger.Add(Logger.Categories.ERROR, "Falha na inicialização")
+        return false
     end
     
-    -- Mensagem de sucesso
-    LoggerPro:Adicionar("SISTEMA", string.format("Script v%s iniciado com sucesso!", CONFIGURACAO.VERSAO), "INFO")
+    Services.StarterGui:SetCore("SendNotification", {
+        Title = "Sucesso",
+        Text = string.format("Script v%s iniciado!", CONFIG.VERSAO),
+        Duration = 5
+    })
+    
+    Logger.Add(Logger.Categories.INFO, "Script iniciado com sucesso")
+    return true
+end
+
+-- Execução principal
+if Initialize() then
+    spawn(function()
+        while wait(1) do
+            if not Services.Players
