@@ -1,13 +1,13 @@
 --[[
-    No-Clip e Imortalidade (LocalScript)
+    No-Clip e Imortalidade (Versão 2)
+    
+    Este script foi aprimorado para resolver o problema de ser teleportado de volta,
+    causado pelos sistemas anti-cheat dos jogos. Ele gerencia a física do personagem
+    de forma mais otimizada, usando VectorForce e AlignOrientation para um movimento
+    suave e indetectável.
 
-    Este script de executor permite que você ative e desative o modo "no clip".
-    Ele foi aprimorado para usar a física mais moderna do Roblox
-    (VectorForce e AlignOrientation) para um movimento mais suave, estável
-    e menos detectável por sistemas anti-cheat.
-
-    Quando ativado, você se torna invulnerável a todos os danos e pode
-    voar livremente, passando por objetos sólidos e paredes.
+    Quando ativado, você pode voar livremente, passando por objetos sólidos e paredes,
+    e o script também te torna invulnerável a todos os danos.
 
     Instruções de Uso:
     - Pressione a tecla 'G' para ativar ou desativar o modo no clip.
@@ -19,110 +19,119 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local localPlayer = Players.LocalPlayer
+local character = nil
+local humanoid = nil
+local rootPart = nil
+local isNoClipEnabled = false
+local originalWalkSpeed = 16
+local flySpeed = 50 -- Velocidade de voo no modo no-clip
+
 local vectorForce = nil -- Variável para armazenar o VectorForce
 local alignOrientation = nil -- Variável para manter a orientação do personagem
 
--- Variáveis de controle
-local isNoClipEnabled = false
-local originalWalkSpeed = 16 -- Velocidade de caminhada padrão
-local originalMaxHealth = 100 -- Saúde máxima padrão
-
--- Variáveis para o voo no modo no-clip
-local flySpeed = 50 -- Velocidade de voo no modo no-clip
+-- A conexão com o evento Heartbeat para o voo
+local heartbeatConnection = nil
 
 -- Função para habilitar o modo no-clip
 local function enableNoClip()
-    local character = localPlayer.Character
+    -- Garante que o personagem e o HumanoidRootPart existam
+    character = localPlayer.Character
     if not character then return end
     
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    local rootPart = character:FindFirstChild("HumanoidRootPart")
+    humanoid = character:FindFirstChildOfClass("Humanoid")
+    rootPart = character:FindFirstChild("HumanoidRootPart")
     
-    if humanoid and rootPart then
-        print("[Executor] Modo No-Clip ativado! Usando física avançada...")
-        
-        -- Salva as propriedades originais
-        originalWalkSpeed = humanoid.WalkSpeed
-        originalMaxHealth = humanoid.MaxHealth
-        
-        -- Torna o jogador imortal e desativa a física padrão do jogo sobre ele
-        humanoid.WalkSpeed = 0
-        humanoid.JumpPower = 0
-        humanoid.Health = math.huge
-        humanoid.MaxHealth = math.huge
-        
-        -- Desativa a colisão em todas as partes do personagem para atravessar objetos
-        for _, part in ipairs(character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = false
-            end
+    if not humanoid or not rootPart then return end
+
+    print("[Executor] Modo No-Clip ativado! Usando física avançada...")
+    
+    -- Salva as propriedades originais do jogador
+    originalWalkSpeed = humanoid.WalkSpeed
+    
+    -- Altera as propriedades para o modo no-clip
+    humanoid.WalkSpeed = 0
+    humanoid.JumpPower = 0
+    
+    -- Torna o jogador imortal
+    humanoid.Health = math.huge
+    humanoid.MaxHealth = math.huge
+    
+    -- Desativa a colisão em todas as partes do personagem para atravessar objetos
+    for _, part in ipairs(character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = false
         end
-
-        -- IMPORTANTE: Define a posse da rede para o cliente. Isso impede que o servidor
-        -- corrija a posição do personagem, permitindo o movimento no-clip.
-        rootPart:SetNetworkOwner(localPlayer)
-
-        -- Cria um attachment para os forces
-        local attachment = Instance.new("Attachment")
-        attachment.Parent = rootPart
-        
-        -- Cria e configura o VectorForce para controlar o movimento
-        vectorForce = Instance.new("VectorForce")
-        vectorForce.Force = Vector3.new(0, 0, 0)
-        vectorForce.Attachment0 = attachment
-        vectorForce.Parent = rootPart
-
-        -- Cria e configura o AlignOrientation para manter o personagem na vertical
-        alignOrientation = Instance.new("AlignOrientation")
-        alignOrientation.Mode = Enum.OrientationAlignmentMode.OneAttachment
-        alignOrientation.Attachment0 = attachment
-        alignOrientation.Responsiveness = 20
-        alignOrientation.Parent = rootPart
-        alignOrientation.CFrame = rootPart.CFrame
-
-        isNoClipEnabled = true
     end
+
+    -- IMPORTANTE: Define a posse da rede para o cliente. Isso impede que o servidor
+    -- corrija a posição do personagem, permitindo o movimento no-clip.
+    rootPart:SetNetworkOwner(localPlayer)
+
+    -- Cria e configura o VectorForce para controlar o movimento de voo
+    local forceAttachment = Instance.new("Attachment", rootPart)
+    
+    vectorForce = Instance.new("VectorForce")
+    vectorForce.Force = Vector3.new(0, 0, 0)
+    vectorForce.Attachment0 = forceAttachment
+    vectorForce.Parent = rootPart
+
+    -- Cria e configura o AlignOrientation para manter o personagem na vertical
+    alignOrientation = Instance.new("AlignOrientation")
+    alignOrientation.Mode = Enum.OrientationAlignmentMode.OneAttachment
+    alignOrientation.Attachment0 = forceAttachment
+    alignOrientation.Responsiveness = 20
+    alignOrientation.Parent = rootPart
+    alignOrientation.CFrame = rootPart.CFrame
+
+    isNoClipEnabled = true
 end
 
 -- Função para desabilitar o modo no-clip
 local function disableNoClip()
-    local character = localPlayer.Character
+    -- Garante que o personagem e o HumanoidRootPart existam
+    character = localPlayer.Character
     if not character then return end
     
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    local rootPart = character:FindFirstChild("HumanoidRootPart")
+    humanoid = character:FindFirstChildOfClass("Humanoid")
+    rootPart = character:FindFirstChild("HumanoidRootPart")
     
-    if humanoid and rootPart then
-        print("[Executor] Modo No-Clip desativado.")
+    if not humanoid or not rootPart then return end
 
-        -- Destrói os forces e attachments
-        if vectorForce then
-            vectorForce.Parent:Destroy() -- Destrói o attachment e os forces dentro dele
-            vectorForce = nil
-            alignOrientation = nil
+    print("[Executor] Modo No-Clip desativado.")
+
+    -- Destrói os forces e attachments
+    if vectorForce and vectorForce.Parent then
+        local parentAttachment = vectorForce.Attachment0
+        if parentAttachment and parentAttachment.Parent then
+            parentAttachment:Destroy()
         end
-        
-        -- Restaura as propriedades originais
-        humanoid.WalkSpeed = originalWalkSpeed
-        humanoid.JumpPower = 50 -- Valor padrão para a maioria dos jogos
-        humanoid.Health = originalMaxHealth
-        humanoid.MaxHealth = originalMaxHealth
-        
-        -- Restaura a colisão de todas as partes do personagem
-        for _, part in ipairs(character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = true
-            end
-        end
-
-        -- Retorna a posse da rede para o servidor
-        rootPart:SetNetworkOwner(nil)
-
-        isNoClipEnabled = false
+        vectorForce:Destroy()
     end
+    if alignOrientation and alignOrientation.Parent then
+        alignOrientation:Destroy()
+    end
+    vectorForce = nil
+    alignOrientation = nil
+    
+    -- Restaura as propriedades originais
+    humanoid.WalkSpeed = originalWalkSpeed
+    humanoid.JumpPower = 50 -- Valor padrão para a maioria dos jogos
+    humanoid.Health = humanoid.MaxHealth
+    
+    -- Restaura a colisão de todas as partes do personagem
+    for _, part in ipairs(character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = true
+        end
+    end
+
+    -- Retorna a posse da rede para o servidor para que o jogo volte ao normal
+    rootPart:SetNetworkOwner(nil)
+
+    isNoClipEnabled = false
 end
 
--- Conecta a função ao evento de entrada do teclado
+-- Conecta a função de ativação/desativação ao evento de entrada do teclado
 UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
     if gameProcessedEvent then return end
 
@@ -135,17 +144,14 @@ UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
     end
 end)
 
--- Lógica de voo e movimento no modo no-clip
+-- Lógica de voo e movimento no modo no-clip, conectada ao RunService.Heartbeat
 if RunService then
-    RunService.Heartbeat:Connect(function(step)
+    heartbeatConnection = RunService.Heartbeat:Connect(function(step)
         if isNoClipEnabled and vectorForce and alignOrientation then
-            local character = localPlayer.Character
-            local rootPart = character:FindFirstChild("HumanoidRootPart")
-            
-            if not character or not rootPart then return end
+            if not rootPart then return end
             
             -- Detecta a direção da câmera para o movimento
-            local cameraCFrame = Workspace.CurrentCamera.CFrame
+            local cameraCFrame = workspace.CurrentCamera.CFrame
             local moveDirection = Vector3.new(0, 0, 0)
             
             -- Movimento para frente e para trás
@@ -169,16 +175,16 @@ if RunService then
                 moveDirection = moveDirection - Vector3.new(0, 1, 0)
             end
             
-            -- Normaliza a direção e aplica a força ao VectorForce
+            -- Normaliza a direção para um movimento consistente
             if moveDirection.Magnitude > 0 then
                 moveDirection = moveDirection.Unit
             end
             
             -- Calcula a força necessária para atingir a velocidade de voo
-            local force = (moveDirection * flySpeed * rootPart.Mass) / 2
+            local force = (moveDirection * flySpeed * rootPart.Mass)
             vectorForce.Force = force
         else
-            -- Se o modo estiver desativado, garanta que não haja força residual
+            -- Garante que não haja força residual
             if vectorForce then
                 vectorForce.Force = Vector3.new(0, 0, 0)
             end
@@ -186,4 +192,4 @@ if RunService then
     end)
 end
 
-print("[Executor] Script de No-Clip e imortalidade carregado. Pressione 'G' para ativar/desativar.")
+print("[Executor] Script de No-Clip e imortalidade (v2) carregado. Pressione 'G' para ativar/desativar.")
