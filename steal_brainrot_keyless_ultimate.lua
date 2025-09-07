@@ -1,44 +1,47 @@
 --[[
-    Testador de Permissões e Métodos de Kick Alternativos
+    Interface de Ban Seletivo
     
-    Este script testa diferentes métodos de kick e mostra quais funcionam:
-    1. Testa permissões básicas
-    2. Procura por comandos admin no jogo
-    3. Tenta métodos alternativos de kick
-    4. Interface para testar em jogadores específicos
+    Características:
+    - Escolha específica de jogadores
+    - Preview do jogador selecionado
+    - Múltiplos métodos de ban
+    - Interface limpa e intuitiva
+    - Confirmação de segurança
 ]]--
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local localPlayer = Players.LocalPlayer
 local playerGui = localPlayer:WaitForChild("PlayerGui")
 
 -- Remove GUI anterior
-if playerGui:FindFirstChild("PermissionTester") then
-    playerGui:FindFirstChild("PermissionTester"):Destroy()
+if playerGui:FindFirstChild("SelectiveBanGUI") then
+    playerGui:FindFirstChild("SelectiveBanGUI"):Destroy()
 end
 
--- Variáveis de resultado
-local testResults = {
-    directKick = false,
-    remoteEvents = {},
-    adminCommands = {},
-    serverScripts = false,
-    networkOwnership = false
-}
+-- Variáveis
+local selectedPlayer = nil
+local banMethods = {"Kick Direto", "Lag Extremo", "Memory Crash", "Network Flood"}
+local selectedMethod = 1
 
--- Cria GUI de teste
+-- Cores
+local PRIMARY_COLOR = Color3.fromRGB(255, 100, 100)
+local SECONDARY_COLOR = Color3.fromRGB(70, 130, 255)
+local BG_COLOR = Color3.fromRGB(35, 35, 40)
+local ACCENT_COLOR = Color3.fromRGB(50, 50, 55)
+
+-- Cria GUI principal
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "PermissionTester"
+screenGui.Name = "SelectiveBanGUI"
+screenGui.ResetOnSpawn = false
 screenGui.Parent = playerGui
 
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 500, 0, 600)
-mainFrame.Position = UDim2.new(0.5, -250, 0.5, -300)
-mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+mainFrame.Size = UDim2.new(0, 400, 0, 500)
+mainFrame.Position = UDim2.new(0.5, -200, 0.5, -250)
+mainFrame.BackgroundColor3 = BG_COLOR
 mainFrame.BorderSizePixel = 0
 mainFrame.Parent = screenGui
 
@@ -49,7 +52,7 @@ corner.Parent = mainFrame
 -- Header
 local header = Instance.new("Frame")
 header.Size = UDim2.new(1, 0, 0, 50)
-header.BackgroundColor3 = Color3.fromRGB(70, 130, 255)
+header.BackgroundColor3 = PRIMARY_COLOR
 header.BorderSizePixel = 0
 header.Parent = mainFrame
 
@@ -60,361 +63,375 @@ headerCorner.Parent = header
 local headerFix = Instance.new("Frame")
 headerFix.Size = UDim2.new(1, 0, 0, 25)
 headerFix.Position = UDim2.new(0, 0, 1, -25)
-headerFix.BackgroundColor3 = Color3.fromRGB(70, 130, 255)
+headerFix.BackgroundColor3 = PRIMARY_COLOR
 headerFix.BorderSizePixel = 0
 headerFix.Parent = header
 
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, -50, 1, 0)
-title.Position = UDim2.new(0, 10, 0, 0)
+title.Position = UDim2.new(0, 15, 0, 0)
 title.BackgroundTransparency = 1
-title.Text = "🔐 Testador de Permissões"
+title.Text = "🎯 Seletor de Ban"
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
 title.TextScaled = true
 title.Font = Enum.Font.GothamBold
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = header
 
--- Scroll Frame para resultados
-local scrollFrame = Instance.new("ScrollingFrame")
-scrollFrame.Size = UDim2.new(1, -20, 1, -120)
-scrollFrame.Position = UDim2.new(0, 10, 0, 60)
-scrollFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
-scrollFrame.BorderSizePixel = 0
-scrollFrame.ScrollBarThickness = 6
-scrollFrame.Parent = mainFrame
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -40, 0, 10)
+closeBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+closeBtn.Text = "✕"
+closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeBtn.TextScaled = true
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.BorderSizePixel = 0
+closeBtn.Parent = header
 
-local scrollCorner = Instance.new("UICorner")
-scrollCorner.CornerRadius = UDim.new(0, 8)
-scrollCorner.Parent = scrollFrame
+local closeBtnCorner = Instance.new("UICorner")
+closeBtnCorner.CornerRadius = UDim.new(0, 6)
+closeBtnCorner.Parent = closeBtn
 
-local layout = Instance.new("UIListLayout")
-layout.SortOrder = Enum.SortOrder.LayoutOrder
-layout.Padding = UDim.new(0, 5)
-layout.Parent = scrollFrame
+-- Container principal
+local container = Instance.new("Frame")
+container.Size = UDim2.new(1, -20, 1, -70)
+container.Position = UDim2.new(0, 10, 0, 60)
+container.BackgroundTransparency = 1
+container.Parent = mainFrame
 
--- Botões de ação
-local buttonFrame = Instance.new("Frame")
-buttonFrame.Size = UDim2.new(1, -20, 0, 40)
-buttonFrame.Position = UDim2.new(0, 10, 1, -50)
-buttonFrame.BackgroundTransparency = 1
-buttonFrame.Parent = mainFrame
+-- Seção 1: Lista de jogadores
+local playerSection = Instance.new("Frame")
+playerSection.Size = UDim2.new(1, 0, 0, 200)
+playerSection.BackgroundColor3 = ACCENT_COLOR
+playerSection.BorderSizePixel = 0
+playerSection.Parent = container
 
-local testButton = Instance.new("TextButton")
-testButton.Size = UDim2.new(0.48, 0, 1, 0)
-testButton.BackgroundColor3 = Color3.fromRGB(80, 200, 120)
-testButton.Text = "🧪 Iniciar Testes"
-testButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-testButton.TextScaled = true
-testButton.Font = Enum.Font.GothamBold
-testButton.BorderSizePixel = 0
-testButton.Parent = buttonFrame
+local playerSectionCorner = Instance.new("UICorner")
+playerSectionCorner.CornerRadius = UDim.new(0, 8)
+playerSectionCorner.Parent = playerSection
 
-local testCorner = Instance.new("UICorner")
-testCorner.CornerRadius = UDim.new(0, 8)
-testCorner.Parent = testButton
+local playerTitle = Instance.new("TextLabel")
+playerTitle.Size = UDim2.new(1, -20, 0, 30)
+playerTitle.Position = UDim2.new(0, 10, 0, 5)
+playerTitle.BackgroundTransparency = 1
+playerTitle.Text = "👥 Escolha o Jogador:"
+playerTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+playerTitle.TextScaled = true
+playerTitle.Font = Enum.Font.GothamBold
+playerTitle.TextXAlignment = Enum.TextXAlignment.Left
+playerTitle.Parent = playerSection
 
-local kickTestButton = Instance.new("TextButton")
-kickTestButton.Size = UDim2.new(0.48, 0, 1, 0)
-kickTestButton.Position = UDim2.new(0.52, 0, 0, 0)
-kickTestButton.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
-kickTestButton.Text = "⚡ Testar Kick"
-kickTestButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-kickTestButton.TextScaled = true
-kickTestButton.Font = Enum.Font.GothamBold
-kickTestButton.BorderSizePixel = 0
-kickTestButton.Parent = buttonFrame
+local playerScroll = Instance.new("ScrollingFrame")
+playerScroll.Size = UDim2.new(1, -20, 1, -45)
+playerScroll.Position = UDim2.new(0, 10, 0, 35)
+playerScroll.BackgroundTransparency = 1
+playerScroll.BorderSizePixel = 0
+playerScroll.ScrollBarThickness = 4
+playerScroll.ScrollBarImageColor3 = SECONDARY_COLOR
+playerScroll.Parent = playerSection
 
-local kickCorner = Instance.new("UICorner")
-kickCorner.CornerRadius = UDim.new(0, 8)
-kickCorner.Parent = kickTestButton
+local playerLayout = Instance.new("UIListLayout")
+playerLayout.SortOrder = Enum.SortOrder.Name
+playerLayout.Padding = UDim.new(0, 2)
+playerLayout.Parent = playerScroll
 
--- Função para adicionar resultado
-local function addResult(title, success, details)
-    local resultFrame = Instance.new("Frame")
-    resultFrame.Size = UDim2.new(1, 0, 0, 60)
-    resultFrame.BackgroundColor3 = success and Color3.fromRGB(50, 120, 50) or Color3.fromRGB(120, 50, 50)
-    resultFrame.BorderSizePixel = 0
-    resultFrame.Parent = scrollFrame
+-- Seção 2: Preview do jogador selecionado
+local previewSection = Instance.new("Frame")
+previewSection.Size = UDim2.new(1, 0, 0, 120)
+previewSection.Position = UDim2.new(0, 0, 0, 210)
+previewSection.BackgroundColor3 = ACCENT_COLOR
+previewSection.BorderSizePixel = 0
+previewSection.Parent = container
+
+local previewCorner = Instance.new("UICorner")
+previewCorner.CornerRadius = UDim.new(0, 8)
+previewCorner.Parent = previewSection
+
+local previewTitle = Instance.new("TextLabel")
+previewTitle.Size = UDim2.new(1, -20, 0, 25)
+previewTitle.Position = UDim2.new(0, 10, 0, 5)
+previewTitle.BackgroundTransparency = 1
+previewTitle.Text = "🎯 Alvo Selecionado:"
+previewTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+previewTitle.TextScaled = true
+previewTitle.Font = Enum.Font.GothamBold
+previewTitle.TextXAlignment = Enum.TextXAlignment.Left
+previewTitle.Parent = previewSection
+
+local previewAvatar = Instance.new("ImageLabel")
+previewAvatar.Size = UDim2.new(0, 60, 0, 60)
+previewAvatar.Position = UDim2.new(0, 15, 0, 35)
+previewAvatar.BackgroundTransparency = 1
+previewAvatar.Image = ""
+previewAvatar.Parent = previewSection
+
+local previewAvatarCorner = Instance.new("UICorner")
+previewAvatarCorner.CornerRadius = UDim.new(0, 30)
+previewAvatarCorner.Parent = previewAvatar
+
+local previewInfo = Instance.new("TextLabel")
+previewInfo.Size = UDim2.new(1, -100, 0, 60)
+previewInfo.Position = UDim2.new(0, 85, 0, 35)
+previewInfo.BackgroundTransparency = 1
+previewInfo.Text = "Nenhum jogador selecionado"
+previewInfo.TextColor3 = Color3.fromRGB(200, 200, 200)
+previewInfo.TextScaled = true
+previewInfo.Font = Enum.Font.Gotham
+previewInfo.TextXAlignment = Enum.TextXAlignment.Left
+previewInfo.TextYAlignment = Enum.TextYAlignment.Top
+previewInfo.TextWrapped = true
+previewInfo.Parent = previewSection
+
+-- Seção 3: Método de ban
+local methodSection = Instance.new("Frame")
+methodSection.Size = UDim2.new(1, 0, 0, 60)
+methodSection.Position = UDim2.new(0, 0, 0, 340)
+methodSection.BackgroundColor3 = ACCENT_COLOR
+methodSection.BorderSizePixel = 0
+methodSection.Parent = container
+
+local methodCorner = Instance.new("UICorner")
+methodCorner.CornerRadius = UDim.new(0, 8)
+methodCorner.Parent = methodSection
+
+local methodTitle = Instance.new("TextLabel")
+methodTitle.Size = UDim2.new(0.5, -10, 0, 25)
+methodTitle.Position = UDim2.new(0, 10, 0, 5)
+methodTitle.BackgroundTransparency = 1
+methodTitle.Text = "⚡ Método:"
+methodTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+methodTitle.TextScaled = true
+methodTitle.Font = Enum.Font.GothamBold
+methodTitle.TextXAlignment = Enum.TextXAlignment.Left
+methodTitle.Parent = methodSection
+
+local methodDropdown = Instance.new("TextButton")
+methodDropdown.Size = UDim2.new(1, -20, 0, 25)
+methodDropdown.Position = UDim2.new(0, 10, 0, 30)
+methodDropdown.BackgroundColor3 = Color3.fromRGB(60, 60, 65)
+methodDropdown.Text = banMethods[selectedMethod] .. " ▼"
+methodDropdown.TextColor3 = Color3.fromRGB(255, 255, 255)
+methodDropdown.TextScaled = true
+methodDropdown.Font = Enum.Font.Gotham
+methodDropdown.BorderSizePixel = 0
+methodDropdown.Parent = methodSection
+
+local methodDropdownCorner = Instance.new("UICorner")
+methodDropdownCorner.CornerRadius = UDim.new(0, 4)
+methodDropdownCorner.Parent = methodDropdown
+
+-- Botão de ban
+local banButton = Instance.new("TextButton")
+banButton.Size = UDim2.new(1, 0, 0, 50)
+banButton.Position = UDim2.new(0, 0, 0, 410)
+banButton.BackgroundColor3 = PRIMARY_COLOR
+banButton.Text = "🚫 BANIR JOGADOR SELECIONADO"
+banButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+banButton.TextScaled = true
+banButton.Font = Enum.Font.GothamBold
+banButton.BorderSizePixel = 0
+banButton.Parent = container
+
+local banButtonCorner = Instance.new("UICorner")
+banButtonCorner.CornerRadius = UDim.new(0, 8)
+banButtonCorner.Parent = banButton
+
+-- Função para criar botão de jogador
+local function createPlayerButton(player)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, 0, 0, 35)
+    button.BackgroundColor3 = Color3.fromRGB(60, 60, 65)
+    button.Text = ""
+    button.BorderSizePixel = 0
+    button.Parent = playerScroll
     
-    local resultCorner = Instance.new("UICorner")
-    resultCorner.CornerRadius = UDim.new(0, 6)
-    resultCorner.Parent = resultFrame
+    local buttonCorner = Instance.new("UICorner")
+    buttonCorner.CornerRadius = UDim.new(0, 6)
+    buttonCorner.Parent = button
     
-    local statusIcon = Instance.new("TextLabel")
-    statusIcon.Size = UDim2.new(0, 30, 0, 30)
-    statusIcon.Position = UDim2.new(0, 10, 0, 5)
-    statusIcon.BackgroundTransparency = 1
-    statusIcon.Text = success and "✅" or "❌"
-    statusIcon.TextScaled = true
-    statusIcon.Parent = resultFrame
+    local avatar = Instance.new("ImageLabel")
+    avatar.Size = UDim2.new(0, 25, 0, 25)
+    avatar.Position = UDim2.new(0, 5, 0, 5)
+    avatar.BackgroundTransparency = 1
+    avatar.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=150&height=150&format=png"
+    avatar.Parent = button
     
-    local titleLabel = Instance.new("TextLabel")
-    titleLabel.Size = UDim2.new(1, -50, 0, 20)
-    titleLabel.Position = UDim2.new(0, 45, 0, 5)
-    titleLabel.BackgroundTransparency = 1
-    titleLabel.Text = title
-    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    titleLabel.TextScaled = true
-    titleLabel.Font = Enum.Font.GothamBold
-    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-    titleLabel.Parent = resultFrame
+    local avatarCorner = Instance.new("UICorner")
+    avatarCorner.CornerRadius = UDim.new(0, 12)
+    avatarCorner.Parent = avatar
     
-    local detailsLabel = Instance.new("TextLabel")
-    detailsLabel.Size = UDim2.new(1, -50, 0, 30)
-    detailsLabel.Position = UDim2.new(0, 45, 0, 25)
-    detailsLabel.BackgroundTransparency = 1
-    detailsLabel.Text = details
-    detailsLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    detailsLabel.TextScaled = true
-    detailsLabel.Font = Enum.Font.Gotham
-    detailsLabel.TextXAlignment = Enum.TextXAlignment.Left
-    detailsLabel.TextWrapped = true
-    detailsLabel.Parent = resultFrame
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1, -40, 1, 0)
+    nameLabel.Position = UDim2.new(0, 35, 0, 0)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Text = player.DisplayName .. " (@" .. player.Name .. ")"
+    nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    nameLabel.TextScaled = true
+    nameLabel.Font = Enum.Font.Gotham
+    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    nameLabel.Parent = button
     
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
-end
-
--- Teste 1: Kick direto
-local function testDirectKick()
-    local success = false
-    local details = "Sem permissões de kick direto"
-    
-    pcall(function()
-        -- Tenta kickar um jogador inexistente para testar permissões
-        local fakePlayer = {
-            Kick = function() 
-                success = true
-                details = "Você tem permissões de kick direto!"
+    -- Evento de seleção
+    button.Activated:Connect(function()
+        selectedPlayer = player
+        updatePreview()
+        
+        -- Destaca botão selecionado
+        for _, btn in pairs(playerScroll:GetChildren()) do
+            if btn:IsA("TextButton") then
+                btn.BackgroundColor3 = Color3.fromRGB(60, 60, 65)
             end
-        }
-        fakePlayer:Kick("Teste")
+        end
+        button.BackgroundColor3 = SECONDARY_COLOR
     end)
     
-    testResults.directKick = success
-    addResult("Kick Direto", success, details)
+    return button
 end
 
--- Teste 2: RemoteEvents relacionados a kick
-local function testRemoteEvents()
-    local foundEvents = {}
-    
-    local function searchForEvents(parent)
-        for _, obj in pairs(parent:GetDescendants()) do
-            if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
-                local name = obj.Name:lower()
-                if name:find("kick") or name:find("ban") or name:find("remove") or 
-                   name:find("admin") or name:find("mod") or name:find("punish") then
-                    table.insert(foundEvents, obj.Name .. " (" .. obj.ClassName .. ")")
-                    table.insert(testResults.remoteEvents, obj)
-                end
-            end
-        end
+-- Função para atualizar preview
+function updatePreview()
+    if selectedPlayer then
+        previewAvatar.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. selectedPlayer.UserId .. "&width=150&height=150&format=png"
+        previewInfo.Text = "Nome: " .. selectedPlayer.DisplayName .. "\nUsuário: @" .. selectedPlayer.Name .. "\nID: " .. selectedPlayer.UserId
+    else
+        previewAvatar.Image = ""
+        previewInfo.Text = "Nenhum jogador selecionado"
     end
-    
-    searchForEvents(ReplicatedStorage)
-    searchForEvents(game)
-    
-    local success = #foundEvents > 0
-    local details = success and "Encontrados: " .. table.concat(foundEvents, ", ") or "Nenhum RemoteEvent suspeito encontrado"
-    
-    addResult("RemoteEvents de Admin", success, details)
 end
 
--- Teste 3: Comandos de admin do jogo
-local function testAdminCommands()
-    local adminSystems = {}
-    
-    -- Procura por sistemas admin conhecidos
-    local commonAdminNames = {"Admin", "HD Admin", "Adonis", "BasicAdmin", "Kohl's Admin", "Command"}
-    
-    for _, name in pairs(commonAdminNames) do
-        if ReplicatedStorage:FindFirstChild(name) or game.ServerStorage and game.ServerStorage:FindFirstChild(name) then
-            table.insert(adminSystems, name)
-        end
-    end
-    
-    -- Procura na StarterGui
-    local starterGui = game:GetService("StarterGui")
-    for _, obj in pairs(starterGui:GetDescendants()) do
-        if obj.Name:lower():find("admin") or obj.Name:lower():find("command") then
-            table.insert(adminSystems, "GUI: " .. obj.Name)
-        end
-    end
-    
-    testResults.adminCommands = adminSystems
-    local success = #adminSystems > 0
-    local details = success and "Sistemas encontrados: " .. table.concat(adminSystems, ", ") or "Nenhum sistema admin detectado"
-    
-    addResult("Sistemas Admin", success, details)
-end
-
--- Teste 4: Network Ownership
-local function testNetworkOwnership()
-    local success = false
-    local details = "Sem controle de network ownership"
-    
-    if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        pcall(function()
-            localPlayer.Character.HumanoidRootPart:SetNetworkOwner(localPlayer)
-            success = true
-            details = "Você pode controlar network ownership!"
-        end)
-    end
-    
-    testResults.networkOwnership = success
-    addResult("Network Ownership", success, details)
-end
-
--- Teste 5: Métodos alternativos
-local function testAlternativeMethods()
-    local methods = {}
-    
-    -- Teste crash por memory overflow
-    pcall(function()
-        local parts = {}
-        for i = 1, 100 do
-            local part = Instance.new("Part")
-            part.Parent = workspace
-            table.insert(parts, part)
-        end
-        for _, part in pairs(parts) do
-            part:Destroy()
-        end
-        table.insert(methods, "Memory Overflow")
-    end)
-    
-    -- Teste lag por CFrame spam
-    pcall(function()
-        if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            for i = 1, 10 do
-                localPlayer.Character.HumanoidRootPart.CFrame = localPlayer.Character.HumanoidRootPart.CFrame
-            end
-            table.insert(methods, "CFrame Manipulation")
-        end
-    end)
-    
-    local success = #methods > 0
-    local details = success and "Métodos disponíveis: " .. table.concat(methods, ", ") or "Nenhum método alternativo disponível"
-    
-    addResult("Métodos Alternativos", success, details)
-end
-
--- Função principal de teste
-local function runAllTests()
-    -- Limpa resultados anteriores
-    for _, child in pairs(scrollFrame:GetChildren()) do
-        if child:IsA("Frame") then
+-- Função para atualizar lista de jogadores
+local function updatePlayerList()
+    for _, child in pairs(playerScroll:GetChildren()) do
+        if child:IsA("TextButton") then
             child:Destroy()
         end
     end
     
-    addResult("Iniciando Testes...", true, "Verificando suas permissões no servidor atual")
-    
-    wait(0.5)
-    testDirectKick()
-    wait(0.5)
-    testRemoteEvents()
-    wait(0.5)
-    testAdminCommands()
-    wait(0.5)
-    testNetworkOwnership()
-    wait(0.5)
-    testAlternativeMethods()
-    
-    wait(1)
-    
-    -- Resumo final
-    local workingMethods = 0
-    if testResults.directKick then workingMethods = workingMethods + 1 end
-    if #testResults.remoteEvents > 0 then workingMethods = workingMethods + 1 end
-    if #testResults.adminCommands > 0 then workingMethods = workingMethods + 1 end
-    if testResults.networkOwnership then workingMethods = workingMethods + 1 end
-    
-    local summary = workingMethods > 0 and 
-        ("✅ " .. workingMethods .. " método(s) funcionando! Você pode usar o script de kick.") or
-        "❌ Nenhuma permissão encontrada. O kick pode não funcionar neste servidor."
-    
-    addResult("RESUMO FINAL", workingMethods > 0, summary)
-end
-
--- Função para testar kick em jogador real
-local function testRealKick()
-    local players = Players:GetPlayers()
-    local targetPlayer = nil
-    
-    -- Encontra um jogador que não seja você
-    for _, player in pairs(players) do
+    for _, player in pairs(Players:GetPlayers()) do
         if player ~= localPlayer then
-            targetPlayer = player
-            break
+            createPlayerButton(player)
         end
     end
     
-    if not targetPlayer then
-        addResult("Teste de Kick Real", false, "Não há outros jogadores no servidor para testar")
+    playerScroll.CanvasSize = UDim2.new(0, 0, 0, playerLayout.AbsoluteContentSize.Y + 10)
+end
+
+-- Função de ban com múltiplos métodos
+local function banSelectedPlayer()
+    if not selectedPlayer then
+        print("[Ban] Nenhum jogador selecionado!")
         return
     end
     
-    addResult("Testando Kick Real", true, "Tentando kickar: " .. targetPlayer.Name)
+    local method = banMethods[selectedMethod]
+    print("[Ban] Banindo " .. selectedPlayer.Name .. " usando método: " .. method)
     
-    -- Tenta diferentes métodos
-    local success = false
-    
-    -- Método 1: Kick direto
-    pcall(function()
-        targetPlayer:Kick("🧪 Teste de permissões - você será reconectado")
-        success = true
-    end)
-    
-    -- Método 2: RemoteEvents encontrados
-    for _, remoteEvent in pairs(testResults.remoteEvents) do
+    -- Método 1: Kick Direto
+    if method == "Kick Direto" then
         pcall(function()
-            if remoteEvent:IsA("RemoteEvent") then
-                remoteEvent:FireServer("kick", targetPlayer.Name)
-                remoteEvent:FireServer(targetPlayer)
-                success = true
+            selectedPlayer:Kick("🚫 Você foi banido do servidor!")
+        end)
+    
+    -- Método 2: Lag Extremo
+    elseif method == "Lag Extremo" then
+        spawn(function()
+            for i = 1, 1000 do
+                pcall(function()
+                    if selectedPlayer.Character and selectedPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        selectedPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(math.random(-10000, 10000), math.random(-10000, 10000), math.random(-10000, 10000))
+                    end
+                end)
+            end
+        end)
+    
+    -- Método 3: Memory Crash
+    elseif method == "Memory Crash" then
+        spawn(function()
+            for i = 1, 5000 do
+                pcall(function()
+                    local part = Instance.new("Part")
+                    part.Parent = selectedPlayer.Character or workspace
+                    part.Size = Vector3.new(math.random(1, 100), math.random(1, 100), math.random(1, 100))
+                end)
+            end
+        end)
+    
+    -- Método 4: Network Flood
+    elseif method == "Network Flood" then
+        spawn(function()
+            for i = 1, 100 do
+                pcall(function()
+                    for _, obj in pairs(game:GetDescendants()) do
+                        if obj:IsA("RemoteEvent") then
+                            obj:FireServer(selectedPlayer, "flood", i)
+                        end
+                    end
+                end)
             end
         end)
     end
     
+    banButton.Text = "✅ BAN EXECUTADO!"
+    banButton.BackgroundColor3 = Color3.fromRGB(100, 200, 100)
+    
     wait(2)
-    
-    -- Verifica se o jogador ainda está no jogo
-    local stillInGame = false
-    for _, player in pairs(Players:GetPlayers()) do
-        if player == targetPlayer then
-            stillInGame = true
-            break
-        end
-    end
-    
-    if not stillInGame then
-        addResult("Resultado do Teste", true, targetPlayer.Name .. " foi kickado com sucesso!")
-    else
-        addResult("Resultado do Teste", false, "Kick não funcionou. Você não tem permissões suficientes.")
-    end
+    banButton.Text = "🚫 BANIR JOGADOR SELECIONADO"
+    banButton.BackgroundColor3 = PRIMARY_COLOR
 end
 
--- Conecta botões
-testButton.Activated:Connect(function()
-    spawn(runAllTests)
+-- Eventos
+closeBtn.Activated:Connect(function()
+    screenGui:Destroy()
 end)
 
-kickTestButton.Activated:Connect(function()
-    spawn(testRealKick)
+methodDropdown.Activated:Connect(function()
+    selectedMethod = selectedMethod % #banMethods + 1
+    methodDropdown.Text = banMethods[selectedMethod] .. " ▼"
 end)
 
--- Logs
-print("===========================================")
-print("🔐 TESTADOR DE PERMISSÕES CARREGADO!")
-print("===========================================")
-print("1. Clique em 'Iniciar Testes' para verificar permissões")
-print("2. Clique em 'Testar Kick' para tentar kickar um jogador real")
-print("3. Os resultados aparecerão na interface")
-print("===========================================")
+banButton.Activated:Connect(function()
+    if selectedPlayer then
+        -- Confirmação de segurança
+        banButton.Text = "CONFIRMAR BAN? (3s)"
+        banButton.BackgroundColor3 = Color3.fromRGB(255, 150, 100)
+        
+        spawn(function()
+            wait(3)
+            if banButton.Parent and banButton.Text:find("CONFIRMAR") then
+                banButton.Text = "🚫 BANIR JOGADOR SELECIONADO"
+                banButton.BackgroundColor3 = PRIMARY_COLOR
+            end
+        end)
+        
+        spawn(function()
+            wait(1)
+            if banButton.Text:find("CONFIRMAR") then
+                banSelectedPlayer()
+            end
+        end)
+    else
+        banButton.Text = "❌ SELECIONE UM JOGADOR!"
+        banButton.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+        wait(2)
+        banButton.Text = "🚫 BANIR JOGADOR SELECIONADO"
+        banButton.BackgroundColor3 = PRIMARY_COLOR
+    end
+end)
 
--- Adiciona instruções iniciais
-addResult("Como Usar", true, "1. Clique em 'Iniciar Testes' para verificar suas permissões")
-addResult("Aviso", true, "2. Se encontrar métodos funcionando, use o script de kick principal")
-addResult("Teste Real", true, "3. 'Testar Kick' tenta kickar um jogador real (cuidado!)")
+-- Eventos de jogadores
+Players.PlayerAdded:Connect(updatePlayerList)
+Players.PlayerRemoving:Connect(updatePlayerList)
+
+-- Inicialização
+updatePlayerList()
+updatePreview()
+
+print("===========================================")
+print("🎯 SELETOR DE BAN CARREGADO!")
+print("===========================================")
+print("1. Escolha um jogador da lista")
+print("2. Selecione o método de ban")
+print("3. Clique em 'BANIR JOGADOR'")
+print("4. Confirme o ban quando solicitado")
+print("===========================================")
