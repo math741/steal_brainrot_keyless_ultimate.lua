@@ -1,278 +1,479 @@
--- UNIVERSAL HACK TURBO v2 (Delta Executor) - P/Ç + MUITAS FEATURES
--- Cole tudo e execute
+-- STEAL A BRAINROT - UNIVERSAL (QUALQUER JOGO)
+-- Compatível com qualquer jogo Roblox
+-- Execute no Delta ou outro executor
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
 
-local speedEnabled = false
-local speedValue = 120
-local flyEnabled = false
-local flySpeed = 80
-local noclipEnabled = false
+-- ============================================================
+-- ESTADO GLOBAL
+-- ============================================================
+local speedEnabled   = true
+local speedValue     = 120
+local flyEnabled     = false
+local flySpeed       = 80
+local noclipEnabled  = false
 local infJumpEnabled = false
-local godEnabled = false
-local espEnabled = false
+local godEnabled     = false
+local espEnabled     = false
 local clickTPEnabled = false
-local jumpPowerValue = 50
+local guiVisible     = true
 
-local character, humanoid, root
-local speedConn, flyConn, noclipConn
-local bv, bg
-local keys = {}
-local espConnections = {}
+local flyConn, noclipConn, espConn
+local flyBody
 
-local function updateChar()
-    character = player.Character or player.CharacterAdded:Wait()
-    humanoid = character:WaitForChild("Humanoid")
-    root = character:WaitForChild("HumanoidRootPart")
+-- ============================================================
+-- UTILITÁRIOS
+-- ============================================================
+local function getChar()
+    local char = player.Character
+    if not char then return nil, nil end
+    return char:FindFirstChildOfClass("Humanoid"),
+           char:FindFirstChild("HumanoidRootPart")
 end
-updateChar()
-player.CharacterAdded:Connect(updateChar)
 
--- ==================== GUI LINDA ====================
+-- Reconecta ao trocar de personagem
+local function onCharAdded(char)
+    char:WaitForChild("Humanoid")
+    char:WaitForChild("HumanoidRootPart")
+
+    -- Reaplica inf jump
+    if infJumpEnabled then
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum then
+            hum:GetPropertyChangedSignal("Jump"):Connect(function()
+                if infJumpEnabled and hum.Jump then
+                    hum.JumpPower = 100
+                end
+            end)
+        end
+    end
+end
+
+player.CharacterAdded:Connect(onCharAdded)
+if player.Character then onCharAdded(player.Character) end
+
+-- ============================================================
+-- SPEED HACK
+-- ============================================================
+RunService.Heartbeat:Connect(function()
+    if not speedEnabled then return end
+    local hum, root = getChar()
+    if hum and root then
+        hum.WalkSpeed = speedValue
+        if hum.MoveDirection.Magnitude > 0 then
+            root.Velocity = Vector3.new(
+                hum.MoveDirection.X * speedValue,
+                root.Velocity.Y,
+                hum.MoveDirection.Z * speedValue
+            )
+        end
+    end
+end)
+
+-- ============================================================
+-- FLY
+-- ============================================================
+local function enableFly()
+    local hum, root = getChar()
+    if not hum or not root then return end
+
+    hum.PlatformStand = true
+
+    flyBody = Instance.new("BodyVelocity")
+    flyBody.Velocity = Vector3.zero
+    flyBody.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+    flyBody.Parent = root
+
+    local gyro = Instance.new("BodyGyro")
+    gyro.MaxTorque = Vector3.new(1e5, 1e5, 1e5)
+    gyro.P = 1e4
+    gyro.Parent = root
+
+    flyConn = RunService.Heartbeat:Connect(function()
+        if not flyEnabled then return end
+        local hum2, root2 = getChar()
+        if not root2 then return end
+
+        local cam = workspace.CurrentCamera
+        local dir = Vector3.zero
+        if UserInputService:IsKeyDown(Enum.KeyCode.W) then dir = dir + cam.CFrame.LookVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.S) then dir = dir - cam.CFrame.LookVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.A) then dir = dir - cam.CFrame.RightVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.D) then dir = dir + cam.CFrame.RightVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then dir = dir + Vector3.new(0,1,0) end
+        if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then dir = dir - Vector3.new(0,1,0) end
+
+        flyBody.Velocity = dir.Magnitude > 0 and dir.Unit * flySpeed or Vector3.zero
+        gyro.CFrame = cam.CFrame
+    end)
+end
+
+local function disableFly()
+    if flyConn then flyConn:Disconnect() end
+    if flyBody then flyBody:Destroy() end
+    local hum, _ = getChar()
+    if hum then hum.PlatformStand = false end
+end
+
+-- ============================================================
+-- NOCLIP
+-- ============================================================
+local function updateNoclip()
+    if noclipEnabled then
+        noclipConn = RunService.Stepped:Connect(function()
+            local char = player.Character
+            if not char then return end
+            for _, v in ipairs(char:GetDescendants()) do
+                if v:IsA("BasePart") then
+                    v.CanCollide = false
+                end
+            end
+        end)
+    else
+        if noclipConn then noclipConn:Disconnect() end
+        local char = player.Character
+        if char then
+            for _, v in ipairs(char:GetDescendants()) do
+                if v:IsA("BasePart") then
+                    v.CanCollide = true
+                end
+            end
+        end
+    end
+end
+
+-- ============================================================
+-- GOD MODE
+-- ============================================================
+local function updateGod()
+    local hum, _ = getChar()
+    if not hum then return end
+    if godEnabled then
+        hum.MaxHealth = math.huge
+        hum.Health = math.huge
+        hum:GetPropertyChangedSignal("Health"):Connect(function()
+            if godEnabled then hum.Health = math.huge end
+        end)
+    end
+end
+
+-- ============================================================
+-- INF JUMP
+-- ============================================================
+UserInputService.JumpRequest:Connect(function()
+    if infJumpEnabled then
+        local hum, _ = getChar()
+        if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
+    end
+end)
+
+-- ============================================================
+-- ESP (Highlight universal)
+-- ============================================================
+local espHighlights = {}
+
+local function clearESP()
+    for _, h in pairs(espHighlights) do
+        if h and h.Parent then h:Destroy() end
+    end
+    espHighlights = {}
+end
+
+local function applyESP()
+    clearESP()
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= player and p.Character then
+            local h = Instance.new("Highlight")
+            h.FillColor = Color3.fromRGB(255, 0, 0)
+            h.OutlineColor = Color3.fromRGB(255, 255, 255)
+            h.FillTransparency = 0.5
+            h.Parent = p.Character
+            espHighlights[p.Name] = h
+
+            p.CharacterAdded:Connect(function(char)
+                if not espEnabled then return end
+                local nh = Instance.new("Highlight")
+                nh.FillColor = Color3.fromRGB(255, 0, 0)
+                nh.OutlineColor = Color3.fromRGB(255, 255, 255)
+                nh.FillTransparency = 0.5
+                nh.Parent = char
+                espHighlights[p.Name] = nh
+            end)
+        end
+    end
+end
+
+Players.PlayerAdded:Connect(function(p)
+    if not espEnabled then return end
+    p.CharacterAdded:Connect(function(char)
+        local h = Instance.new("Highlight")
+        h.FillColor = Color3.fromRGB(255, 0, 0)
+        h.OutlineColor = Color3.fromRGB(255, 255, 255)
+        h.FillTransparency = 0.5
+        h.Parent = char
+        espHighlights[p.Name] = h
+    end)
+end)
+
+-- ============================================================
+-- CLICK TELEPORT
+-- ============================================================
+local clickConn
+local function updateClickTP()
+    if clickTPEnabled then
+        clickConn = UserInputService.InputBegan:Connect(function(input, gp)
+            if gp then return end
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                local _, root = getChar()
+                if not root then return end
+                local ray = workspace:Raycast(
+                    workspace.CurrentCamera.CFrame.Position,
+                    (workspace.CurrentCamera.CFrame.LookVector) * 500
+                )
+                if ray then
+                    root.CFrame = CFrame.new(ray.Position + Vector3.new(0, 3, 0))
+                end
+            end
+        end)
+    else
+        if clickConn then clickConn:Disconnect() end
+    end
+end
+
+-- ============================================================
+-- GUI
+-- ============================================================
+-- Remove GUI antiga se existir
+local old = game:GetService("CoreGui"):FindFirstChild("StealBrainrot")
+if old then old:Destroy() end
+
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "UniversalHackV2"
+ScreenGui.Name = "StealBrainrot"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = game:GetService("CoreGui")
 
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 360, 0, 580)
-MainFrame.Position = UDim2.new(0.5, -180, 0.5, -290)
-MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+MainFrame.Size = UDim2.new(0, 370, 0, 600)
+MainFrame.Position = UDim2.new(0.5, -185, 0.5, -300)
+MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 28)
 MainFrame.BorderSizePixel = 0
 MainFrame.Parent = ScreenGui
-
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 14)
 
+-- Sombra
+local shadow = Instance.new("ImageLabel")
+shadow.Size = UDim2.new(1, 30, 1, 30)
+shadow.Position = UDim2.new(0, -15, 0, -15)
+shadow.BackgroundTransparency = 1
+shadow.Image = "rbxassetid://5554236805"
+shadow.ImageColor3 = Color3.new(0,0,0)
+shadow.ImageTransparency = 0.4
+shadow.ZIndex = -1
+shadow.Parent = MainFrame
+
+-- Título
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, 0, 0, 55)
+Title.Size = UDim2.new(1, -50, 0, 55)
+Title.Position = UDim2.new(0, 10, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "UNIVERSAL HACK TURBO"
+Title.Text = "🧠 Steal a Brainrot"
 Title.TextColor3 = Color3.fromRGB(0, 255, 120)
 Title.TextScaled = true
 Title.Font = Enum.Font.GothamBold
 Title.Parent = MainFrame
 
--- Draggable + Close
-local dragging, dragStart, startPos
-MainFrame.InputBegan:Connect(function(i) 
-    if i.UserInputType == Enum.UserInputType.MouseButton1 then 
-        dragging = true; dragStart = i.Position; startPos = MainFrame.Position 
-    end 
-end)
-UserInputService.InputChanged:Connect(function(i)
-    if dragging and i.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = i.Position - dragStart
-        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-end)
-UserInputService.InputEnded:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end end)
-
+-- Botão fechar
 local Close = Instance.new("TextButton")
-Close.Size = UDim2.new(0,35,0,35); Close.Position = UDim2.new(1,-40,0,10)
-Close.BackgroundColor3 = Color3.fromRGB(255,60,60); Close.Text = "X"; Close.TextScaled = true
-Close.Font = Enum.Font.GothamBold; Close.TextColor3 = Color3.new(1,1,1)
+Close.Size = UDim2.new(0, 35, 0, 35)
+Close.Position = UDim2.new(1, -45, 0, 10)
+Close.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+Close.Text = "✕"
+Close.TextScaled = true
+Close.Font = Enum.Font.GothamBold
+Close.TextColor3 = Color3.new(1,1,1)
 Close.Parent = MainFrame
 Instance.new("UICorner", Close)
 Close.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
--- Função rápida pra criar toggle
-local function createToggle(name, yPos, callback)
+-- Divisor
+local Divider = Instance.new("Frame")
+Divider.Size = UDim2.new(0.9, 0, 0, 2)
+Divider.Position = UDim2.new(0.05, 0, 0, 56)
+Divider.BackgroundColor3 = Color3.fromRGB(0, 255, 120)
+Divider.BorderSizePixel = 0
+Divider.Parent = MainFrame
+
+-- Lista de features
+local ScrollFrame = Instance.new("ScrollingFrame")
+ScrollFrame.Size = UDim2.new(1, -20, 1, -70)
+ScrollFrame.Position = UDim2.new(0, 10, 0, 65)
+ScrollFrame.BackgroundTransparency = 1
+ScrollFrame.ScrollBarThickness = 4
+ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(0, 255, 120)
+ScrollFrame.Parent = MainFrame
+
+local Layout = Instance.new("UIListLayout")
+Layout.Padding = UDim.new(0, 8)
+Layout.Parent = ScrollFrame
+
+local function makeRow(name, isOn, onToggle, hasBox, boxDefault, onBox)
+    local row = Instance.new("Frame")
+    row.Size = UDim2.new(1, -10, 0, 40)
+    row.BackgroundColor3 = Color3.fromRGB(28, 28, 42)
+    row.BorderSizePixel = 0
+    row.Parent = ScrollFrame
+    Instance.new("UICorner", row).CornerRadius = UDim.new(0, 8)
+
     local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(0.65,0,0,35); lbl.Position = UDim2.new(0.05,0,yPos,0)
-    lbl.BackgroundTransparency = 1; lbl.Text = name; lbl.TextColor3 = Color3.new(1,1,1)
-    lbl.TextXAlignment = Enum.TextXAlignment.Left; lbl.TextScaled = true; lbl.Font = Enum.Font.GothamSemibold
-    lbl.Parent = MainFrame
+    lbl.Size = UDim2.new(0.55, 0, 1, 0)
+    lbl.Position = UDim2.new(0, 10, 0, 0)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = name
+    lbl.TextColor3 = Color3.new(1,1,1)
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.TextScaled = true
+    lbl.Font = Enum.Font.GothamSemibold
+    lbl.Parent = row
+
+    if hasBox then
+        local box = Instance.new("TextBox")
+        box.Size = UDim2.new(0.22, 0, 0.7, 0)
+        box.Position = UDim2.new(0.56, 0, 0.15, 0)
+        box.BackgroundColor3 = Color3.fromRGB(38, 38, 55)
+        box.Text = tostring(boxDefault)
+        box.TextColor3 = Color3.new(1,1,1)
+        box.TextScaled = true
+        box.Font = Enum.Font.Gotham
+        box.Parent = row
+        Instance.new("UICorner", box).CornerRadius = UDim.new(0, 6)
+        box.FocusLost:Connect(function() if onBox then onBox(box.Text) end end)
+    end
 
     local tog = Instance.new("TextButton")
-    tog.Size = UDim2.new(0,90,0,35); tog.Position = UDim2.new(0.72,0,yPos,0)
-    tog.BackgroundColor3 = Color3.fromRGB(255,60,60); tog.Text = "OFF"; tog.TextColor3 = Color3.new(1,1,1)
-    tog.TextScaled = true; tog.Font = Enum.Font.GothamBold
-    tog.Parent = MainFrame
-    Instance.new("UICorner", tog)
+    tog.Size = UDim2.new(0.18, 0, 0.7, 0)
+    tog.Position = UDim2.new(0.8, 0, 0.15, 0)
+    tog.BackgroundColor3 = isOn and Color3.fromRGB(0,220,100) or Color3.fromRGB(200,50,50)
+    tog.Text = isOn and "ON" or "OFF"
+    tog.TextColor3 = Color3.new(1,1,1)
+    tog.TextScaled = true
+    tog.Font = Enum.Font.GothamBold
+    tog.Parent = row
+    Instance.new("UICorner", tog).CornerRadius = UDim.new(0, 6)
 
     tog.MouseButton1Click:Connect(function()
-        local state = tog.Text == "OFF"
+        local state = onToggle()
         tog.Text = state and "ON" or "OFF"
-        tog.BackgroundColor3 = state and Color3.fromRGB(0,255,100) or Color3.fromRGB(255,60,60)
-        callback(state)
+        tog.BackgroundColor3 = state and Color3.fromRGB(0,220,100) or Color3.fromRGB(200,50,50)
     end)
-    return tog
+
+    return row
 end
 
--- ==================== FEATURES ====================
+-- Cria as linhas
+makeRow("⚡ Speed Hack", speedEnabled, function()
+    speedEnabled = not speedEnabled
+    return speedEnabled
+end, true, speedValue, function(v)
+    speedValue = tonumber(v) or 120
+end)
 
--- SPEED + HOTKEYS P / Ç
-local speedTog = createToggle("Speed Hack", 70, function(state)
-    speedEnabled = state
-    if state then
-        speedConn = RunService.Heartbeat:Connect(function()
-            if root and humanoid and humanoid.MoveDirection.Magnitude > 0 then
-                root.Velocity = Vector3.new(humanoid.MoveDirection.X * speedValue, root.Velocity.Y, humanoid.MoveDirection.Z * speedValue)
-            end
-        end)
-    else
-        if speedConn then speedConn:Disconnect() end
+makeRow("🦅 Fly", flyEnabled, function()
+    flyEnabled = not flyEnabled
+    if flyEnabled then enableFly() else disableFly() end
+    return flyEnabled
+end, true, flySpeed, function(v)
+    flySpeed = tonumber(v) or 80
+end)
+
+makeRow("👻 Noclip", noclipEnabled, function()
+    noclipEnabled = not noclipEnabled
+    updateNoclip()
+    return noclipEnabled
+end)
+
+makeRow("♾️ Inf Jump", infJumpEnabled, function()
+    infJumpEnabled = not infJumpEnabled
+    return infJumpEnabled
+end)
+
+makeRow("🛡️ God Mode", godEnabled, function()
+    godEnabled = not godEnabled
+    updateGod()
+    return godEnabled
+end)
+
+makeRow("👁️ ESP", espEnabled, function()
+    espEnabled = not espEnabled
+    if espEnabled then applyESP() else clearESP() end
+    return espEnabled
+end)
+
+makeRow("🖱️ Click TP", clickTPEnabled, function()
+    clickTPEnabled = not clickTPEnabled
+    updateClickTP()
+    return clickTPEnabled
+end)
+
+-- Atualiza canvas
+Layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, Layout.AbsoluteContentSize.Y + 10)
+end)
+
+-- ============================================================
+-- DRAG
+-- ============================================================
+local dragging, dragStart, startPos
+MainFrame.InputBegan:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = i.Position
+        startPos = MainFrame.Position
     end
 end)
-
-local speedBox = Instance.new("TextBox")
-speedBox.Size = UDim2.new(0.2,0,0,35); speedBox.Position = UDim2.new(0.05,0,120,0)
-speedBox.BackgroundColor3 = Color3.fromRGB(35,35,45); speedBox.Text = tostring(speedValue)
-speedBox.TextColor3 = Color3.new(1,1,1); speedBox.TextScaled = true; speedBox.Font = Enum.Font.Gotham
-speedBox.Parent = MainFrame
-Instance.new("UICorner", speedBox)
-speedBox.FocusLost:Connect(function() speedValue = tonumber(speedBox.Text) or 120 end)
-
--- FLY
-createToggle("Fly", 165, function(state)
-    flyEnabled = state
-    if state then
-        bv = Instance.new("BodyVelocity", root); bv.MaxForce = Vector3.new(1e5,1e5,1e5)
-        bg = Instance.new("BodyGyro", root); bg.MaxTorque = Vector3.new(1e5,1e5,1e5); bg.P = 12500
-        flyConn = RunService.RenderStepped:Connect(function()
-            local cam = workspace.CurrentCamera
-            local dir = Vector3.new()
-            if keys[Enum.KeyCode.W] then dir += cam.CFrame.LookVector end
-            if keys[Enum.KeyCode.S] then dir -= cam.CFrame.LookVector end
-            if keys[Enum.KeyCode.A] then dir -= cam.CFrame.RightVector end
-            if keys[Enum.KeyCode.D] then dir += cam.CFrame.RightVector end
-            if keys[Enum.KeyCode.Space] then dir += Vector3.new(0,1,0) end
-            if keys[Enum.KeyCode.LeftControl] then dir -= Vector3.new(0,1,0) end
-            bv.Velocity = dir.Unit * flySpeed
-            bg.CFrame = cam.CFrame
-        end)
-    else
-        if flyConn then flyConn:Disconnect() end
-        if bv then bv:Destroy() end
-        if bg then bg:Destroy() end
+UserInputService.InputChanged:Connect(function(i)
+    if dragging and i.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = i.Position - dragStart
+        MainFrame.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
     end
 end)
-
-local flyBox = Instance.new("TextBox")
-flyBox.Size = UDim2.new(0.2,0,0,35); flyBox.Position = UDim2.new(0.75,0,165,0)
-flyBox.BackgroundColor3 = Color3.fromRGB(35,35,45); flyBox.Text = tostring(flySpeed)
-flyBox.TextColor3 = Color3.new(1,1,1); flyBox.TextScaled = true
-flyBox.Parent = MainFrame; Instance.new("UICorner", flyBox)
-flyBox.FocusLost:Connect(function() flySpeed = tonumber(flyBox.Text) or 80 end)
-
--- Noclip, Inf Jump, Godmode, ESP, Click TP
-createToggle("Noclip", 220, function(s) 
-    noclipEnabled = s
-    if s then
-        noclipConn = RunService.Stepped:Connect(function()
-            for _,v in pairs(character:GetDescendants()) do if v:IsA("BasePart") then v.CanCollide = false end end
-        end)
-    else if noclipConn then noclipConn:Disconnect() end end
+UserInputService.InputEnded:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
 end)
 
-createToggle("Infinite Jump", 265, function(s) infJumpEnabled = s end)
-
-createToggle("Godmode", 310, function(s) 
-    godEnabled = s
-    if s then
-        spawn(function()
-            while godEnabled and humanoid do
-                humanoid.MaxHealth = 1e5; humanoid.Health = 1e5
-                task.wait(0.3)
-            end
-        end)
-    end
-end)
-
-createToggle("ESP (Nomes)", 355, function(s)
-    espEnabled = s
-    if s then
-        for _,p in Players:GetPlayers() do if p ~= player then createESP(p) end end
-        Players.PlayerAdded:Connect(function(p) if espEnabled then createESP(p) end end)
-    else
-        for _,conn in espConnections do conn:Disconnect() end
-        for _,p in Players:GetPlayers() do if p.Character then for _,g in p.Character:GetChildren() do if g:IsA("BillboardGui") then g:Destroy() end end end end
-    end
-end)
-
-createToggle("Click TP (Ctrl + Clique)", 400, function(s) clickTPEnabled = s end)
-
--- JumpPower
-local jpLabel = Instance.new("TextLabel")
-jpLabel.Size = UDim2.new(0.6,0,0,35); jpLabel.Position = UDim2.new(0.05,0,445,0)
-jpLabel.BackgroundTransparency = 1; jpLabel.Text = "Jump Power"; jpLabel.TextColor3 = Color3.new(1,1,1)
-jpLabel.TextXAlignment = Enum.TextXAlignment.Left; jpLabel.TextScaled = true; jpLabel.Font = Enum.Font.GothamSemibold
-jpLabel.Parent = MainFrame
-
-local jpBox = Instance.new("TextBox")
-jpBox.Size = UDim2.new(0.3,0,0,35); jpBox.Position = UDim2.new(0.65,0,445,0)
-jpBox.BackgroundColor3 = Color3.fromRGB(35,35,45); jpBox.Text = "50"
-jpBox.TextColor3 = Color3.new(1,1,1); jpBox.TextScaled = true; jpBox.Font = Enum.Font.Gotham
-jpBox.Parent = MainFrame; Instance.new("UICorner", jpBox)
-jpBox.FocusLost:Connect(function()
-    jumpPowerValue = tonumber(jpBox.Text) or 50
-    if humanoid then humanoid.JumpPower = jumpPowerValue end
-end)
-
--- ==================== HOTKEYS ====================
+-- ============================================================
+-- ATALHOS DE TECLADO
+-- ============================================================
 UserInputService.InputBegan:Connect(function(input, gp)
     if gp then return end
-    keys[input.KeyCode] = true
 
-    -- P e Ç (Semicolon = tecla Ç no teclado BR)
+    -- Insert: esconder/mostrar GUI
+    if input.KeyCode == Enum.KeyCode.Insert then
+        guiVisible = not guiVisible
+        MainFrame.Visible = guiVisible
+    end
+
+    -- P: +20 velocidade
     if input.KeyCode == Enum.KeyCode.P then
         speedValue = speedValue + 20
-        speedBox.Text = tostring(speedValue)
-        print("🚀 Velocidade +20 → "..speedValue)
+        print("Velocidade: " .. speedValue)
     end
-    if input.KeyCode == Enum.KeyCode.Semicolon then  -- Ç
+
+    -- Ç / Semicolon: -20 velocidade
+    if input.KeyCode == Enum.KeyCode.Semicolon then
         speedValue = math.max(16, speedValue - 20)
-        speedBox.Text = tostring(speedValue)
-        print("🐢 Velocidade -20 → "..speedValue)
-    end
-
-    -- Insert esconde/mostra GUI
-    if input.KeyCode == Enum.KeyCode.Insert then
-        ScreenGui.Enabled = not ScreenGui.Enabled
+        print("Velocidade: " .. speedValue)
     end
 end)
 
-UserInputService.InputEnded:Connect(function(i) keys[i.KeyCode] = false end)
-
--- Infinite Jump
-UserInputService.JumpRequest:Connect(function()
-    if infJumpEnabled and humanoid then humanoid:ChangeState(Enum.HumanoidStateType.Jumping) end
-end)
-
--- Click TP
-UserInputService.InputBegan:Connect(function(i)
-    if clickTPEnabled and i.UserInputType == Enum.UserInputType.MouseButton1 and UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
-        local mouse = player:GetMouse()
-        local ray = workspace:Raycast(mouse.Hit.Position + Vector3.new(0,50,0), Vector3.new(0,-100,0))
-        if ray and root then root.CFrame = CFrame.new(ray.Position + Vector3.new(0,4,0)) end
-    end
-end)
-
--- Função simples de ESP
-function createESP(plr)
-    if plr == player then return end
-    local conn = plr.CharacterAdded:Connect(function(char)
-        task.wait(1)
-        local head = char:FindFirstChild("Head")
-        if head then
-            local bg = Instance.new("BillboardGui")
-            bg.Adornee = head; bg.Size = UDim2.new(0, 200, 0, 50); bg.StudsOffset = Vector3.new(0, 2.5, 0)
-            bg.AlwaysOnTop = true; bg.Parent = head
-
-            local txt = Instance.new("TextLabel")
-            txt.Size = UDim2.new(1,0,1,0); txt.BackgroundTransparency = 1
-            txt.Text = plr.Name; txt.TextColor3 = Color3.fromRGB(0,255,100)
-            txt.TextScaled = true; txt.Font = Enum.Font.GothamBold; txt.Parent = bg
-        end
-    end)
-    table.insert(espConnections, conn)
-    if plr.Character then conn:Fire() end  -- se já spawnou
-end
-
-print("✅ UNIVERSAL HACK TURBO CARREGADO!")
-print("P = +20 velocidade | Ç = -20 velocidade")
-print("Insert = esconder GUI | Ctrl + Clique Esquerdo = Teleport")
-print("Bora dominar TUDO irmão 🔥")
-
+-- ============================================================
+print("✅ STEAL A BRAINROT CARREGADO!")
+print("🚀 Speed já ligado automaticamente")
+print("P = +20 vel | Ç = -20 vel | Insert = esconder GUI")
